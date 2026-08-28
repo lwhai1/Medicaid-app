@@ -110,7 +110,7 @@
                 appearance: none;
             }
 
-            /* 【关键修复】多行文本框在打印时完全自动展开，不截断、无滚动条 */
+            /* 打印时多行文本框高度及排版调整 */
             textarea {
                 width: 100% !important;
                 border: 1px dashed #666 !important;
@@ -314,22 +314,21 @@
                         </div>
                     </div>
 
-                    <!-- 原保险公司 与 常看医生 并排放在同一行 -->
-                    <div class="grid-print-2 grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                    <div class="grid-print-1 mb-3">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblInsurance">原医疗保险公司、卡号及计划</label>
+                        <input type="text" id="currentInsurance" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none" data-i18n-placeholder="phInsurance" placeholder="例如: UnitedHealthcare / ID / Plan Name...">
+                    </div>
+
+                    <!-- 常用药品清单 与 常看医生/医疗机构 并列区域 -->
+                    <div class="grid-print-2 grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblInsurance">原医疗保险公司及卡号</label>
-                            <input type="text" id="currentInsurance" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none" data-i18n-placeholder="phInsurance" placeholder="例如: UnitedHealthcare / ID...">
+                            <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblMeds">常用药品清单</label>
+                            <textarea id="medications" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none" data-i18n-placeholder="phMeds" placeholder="请列出日常服用的药物名称及剂量..."></textarea>
                         </div>
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblDoctors">常看的医生 / 医疗机构</label>
-                            <input type="text" id="doctors" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none" data-i18n-placeholder="phDoctors" placeholder="家庭医生/专科医生/诊所...">
+                            <textarea id="doctors" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none" data-i18n-placeholder="phDoctors" placeholder="请列出希望保留的家庭医生或专科医生/诊所..."></textarea>
                         </div>
-                    </div>
-
-                    <!-- 常用药品清单独占完整一行，预留充分垂直拓展空间 -->
-                    <div class="grid-print-1 mb-5">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblMeds">常用药品清单</label>
-                        <textarea id="medications" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none" data-i18n-placeholder="phMeds" placeholder="请列出日常服用的药物名称及剂量..."></textarea>
                     </div>
 
                     <!-- 第三部分：下一年度保险及医疗需求 -->

@@ -40,12 +40,12 @@ const i18nData = {
         sec2Title: "二、 原有保险信息",
         lblMbi: "红蓝卡号 (Medicare MBI)",
         lblMedicaidId: "白卡号 (Medicaid ID)",
-        lblInsurance: "原医疗保险公司及卡号",
-        phInsurance: "例如: UnitedHealthcare / ID...",
+        lblInsurance: "原医疗保险公司、卡号及计划",
+        phInsurance: "例如: UnitedHealthcare / ID / Plan Name...",
         lblMeds: "常用药品清单",
         phMeds: "请列出日常服用的药物名称及剂量...",
         lblDoctors: "常看的医生 / 医疗机构",
-        phDoctors: "家庭医生/专科医生/诊所...",
+        phDoctors: "请列出希望保留的家庭医生或专科医生/诊所...",
         sec3Title: "三、 下一年度保险及医疗需求",
         col1Title: "需求或备注",
         col2Title: "预约保险代理沟通时间",
@@ -82,12 +82,12 @@ const i18nData = {
         sec2Title: "2. Existing Insurance Information",
         lblMbi: "Medicare Number (MBI)",
         lblMedicaidId: "Medicaid ID",
-        lblInsurance: "Current Insurance Provider & ID",
-        phInsurance: "e.g., UnitedHealthcare / Member ID...",
+        lblInsurance: "Current Insurance, ID & Plan",
+        phInsurance: "e.g., UnitedHealthcare / Member ID / Plan Name...",
         lblMeds: "Current Medications",
         phMeds: "List daily medications and dosages...",
         lblDoctors: "Preferred Doctors / Clinics",
-        phDoctors: "List primary care physicians or specialists...",
+        phDoctors: "List primary care physicians or specialists/clinics...",
         sec3Title: "3. Next Year Insurance & Medical Needs",
         col1Title: "Needs / Remarks",
         col2Title: "Agent Appointment Time",
@@ -124,6 +124,18 @@ window.toggleLanguage = function() {
     });
 };
 
+/**
+ * 将多行文本（换行符）转换成用分号 ”；“ 分隔的单行横向文本
+ */
+function convertLinesToInlineSemicolons(text) {
+    if (!text) return "";
+    return text
+        .split(/\r?\n/)                     // 按换行拆分
+        .map(item => item.trim())           // 去除每行首尾空格
+        .filter(item => item.length > 0)    // 过滤空行
+        .join("；");                        // 用中文分号连接
+}
+
 // 自动调整所有 textarea 的高度
 function autoResizeTextareas() {
     document.querySelectorAll('textarea').forEach(textarea => {
@@ -132,7 +144,7 @@ function autoResizeTextareas() {
     });
 }
 
-// 绑定页面加载及输入监听，保证打字时也自动扩增
+// 绑定页面加载及输入监听
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('textarea').forEach(textarea => {
         textarea.addEventListener('input', () => {
@@ -148,6 +160,17 @@ window.saveToCloudAndPrint = async function(event) {
     btn.disabled = true;
     btn.innerText = currentLang === 'zh' ? '正在上传服务器...' : 'Uploading...';
 
+    // 格式化“常用药品”与“常看医生”，将多行合并为“；”分隔的单行横向文本
+    const medsInput = document.getElementById('medications');
+    const docsInput = document.getElementById('doctors');
+    
+    const formattedMeds = convertLinesToInlineSemicolons(medsInput.value);
+    const formattedDocs = convertLinesToInlineSemicolons(docsInput.value);
+
+    // 将格式化后的文本写回框内，方便打印呈单行横向显示
+    if (formattedMeds) medsInput.value = formattedMeds;
+    if (formattedDocs) docsInput.value = formattedDocs;
+
     const docId = document.getElementById('docId').value;
     const record = {
         fullName: document.getElementById('fullName').value.trim(),
@@ -162,8 +185,8 @@ window.saveToCloudAndPrint = async function(event) {
         mbiNumber: document.getElementById('mbiNumber').value.trim(),
         medicaidId: document.getElementById('medicaidId').value.trim(),
         currentInsurance: document.getElementById('currentInsurance').value.trim(),
-        medications: document.getElementById('medications').value.trim(),
-        doctors: document.getElementById('doctors').value.trim(),
+        medications: formattedMeds,
+        doctors: formattedDocs,
         notes: document.getElementById('notes').value.trim(),
         appointmentTime: document.getElementById('appointmentTime').value,
         updatedAt: new Date().toLocaleString()
@@ -179,7 +202,6 @@ window.saveToCloudAndPrint = async function(event) {
 
         alert(currentLang === 'zh' ? '✅ 数据已成功同步保存至服务器！正在准备打印报告...' : '✅ Saved to cloud! Preparing print report...');
         
-        // 打印前强制计算并撑开所有多行文本
         autoResizeTextareas();
         window.print();
     } catch (error) {
@@ -249,7 +271,6 @@ function populateFormFields(docId, data) {
     document.getElementById('notes').value = data.notes || '';
     document.getElementById('appointmentTime').value = data.appointmentTime || '';
 
-    // 数据回显完成后自动展开文本域
     setTimeout(autoResizeTextareas, 100);
 }
 
