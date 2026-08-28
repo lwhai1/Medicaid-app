@@ -148,13 +148,13 @@
                 <p class="text-sm text-gray-500 mt-1" data-i18n="subTitle">Medicare & Medicaid 会员年度保险更新云端服务平台</p>
             </div>
 
-            <!-- 安全防护档案搜索栏 (打印时隐藏) -->
+            <!-- 安全防护档案搜索栏 (禁用自动填充，解决显示其他人名字的问题) -->
             <div class="search-card bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6 shadow-sm no-print">
                 <h3 class="font-bold text-blue-900 text-base mb-1" data-i18n="searchTitle">🔒 安全检索与调取</h3>
                 <p class="text-xs text-blue-700 mb-3" data-i18n="searchDesc">为保护个人隐私，需同时匹配【姓名】与【电话号码】方可调取历史档案。</p>
                 <div class="grid grid-cols-1 md:grid-cols-5 gap-2">
-                    <input type="text" id="searchNameInput" class="md:col-span-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" data-i18n-placeholder="searchNamePlaceholder" placeholder="会员姓名...">
-                    <input type="tel" id="searchPhoneInput" class="md:col-span-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" data-i18n-placeholder="searchPhonePlaceholder" placeholder="注册电话号码...">
+                    <input type="text" id="searchNameInput" autocomplete="off" class="md:col-span-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" data-i18n-placeholder="searchNamePlaceholder" placeholder="会员姓名...">
+                    <input type="tel" id="searchPhoneInput" autocomplete="off" class="md:col-span-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" data-i18n-placeholder="searchPhonePlaceholder" placeholder="注册电话号码...">
                     <div class="flex gap-1 md:col-span-1">
                         <button onclick="searchCloudRecord()" class="flex-1 px-3 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 shadow text-sm" data-i18n="btnSearch">验证调取</button>
                         <button onclick="resetForm()" class="px-3 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300 text-sm" data-i18n="btnReset">清空</button>
@@ -202,9 +202,55 @@
                             <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblState">州 (State) *</label>
                             <select id="state" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white">
                                 <option value="TX" selected>Texas (TX)</option>
+                                <option value="AL">Alabama (AL)</option>
+                                <option value="AK">Alaska (AK)</option>
+                                <option value="AZ">Arizona (AZ)</option>
+                                <option value="AR">Arkansas (AR)</option>
                                 <option value="CA">California (CA)</option>
-                                <option value="NY">New York (NY)</option>
+                                <option value="CO">Colorado (CO)</option>
+                                <option value="CT">Connecticut (CT)</option>
+                                <option value="DE">Delaware (DE)</option>
                                 <option value="FL">Florida (FL)</option>
+                                <option value="GA">Georgia (GA)</option>
+                                <option value="HI">Hawaii (HI)</option>
+                                <option value="ID">Idaho (ID)</option>
+                                <option value="IL">Illinois (IL)</option>
+                                <option value="IN">Indiana (IN)</option>
+                                <option value="IA">Iowa (IA)</option>
+                                <option value="KS">Kansas (KS)</option>
+                                <option value="KY">Kentucky (KY)</option>
+                                <option value="LA">Louisiana (LA)</option>
+                                <option value="ME">Maine (ME)</option>
+                                <option value="MD">Maryland (MD)</option>
+                                <option value="MA">Massachusetts (MA)</option>
+                                <option value="MI">Michigan (MI)</option>
+                                <option value="MN">Minnesota (MN)</option>
+                                <option value="MS">Mississippi (MS)</option>
+                                <option value="MO">Missouri (MO)</option>
+                                <option value="MT">Montana (MT)</option>
+                                <option value="NE">Nebraska (NE)</option>
+                                <option value="NV">Nevada (NV)</option>
+                                <option value="NH">New Hampshire (NH)</option>
+                                <option value="NJ">New Jersey (NJ)</option>
+                                <option value="NM">New Mexico (NM)</option>
+                                <option value="NY">New York (NY)</option>
+                                <option value="NC">North Carolina (NC)</option>
+                                <option value="ND">North Dakota (ND)</option>
+                                <option value="OH">Ohio (OH)</option>
+                                <option value="OK">Oklahoma (OK)</option>
+                                <option value="OR">Oregon (OR)</option>
+                                <option value="PA">Pennsylvania (PA)</option>
+                                <option value="RI">Rhode Island (RI)</option>
+                                <option value="SC">South Carolina (SC)</option>
+                                <option value="SD">South Dakota (SD)</option>
+                                <option value="TN">Tennessee (TN)</option>
+                                <option value="UT">Utah (UT)</option>
+                                <option value="VT">Vermont (VT)</option>
+                                <option value="VA">Virginia (VA)</option>
+                                <option value="WA">Washington (WA)</option>
+                                <option value="WV">West Virginia (WV)</option>
+                                <option value="WI">Wisconsin (WI)</option>
+                                <option value="WY">Wyoming (WY)</option>
                                 <option value="Other">Other</option>
                             </select>
                         </div>
@@ -216,14 +262,29 @@
                             <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblCounty">所在县/郡 (County) *</label>
                             <select id="county" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white">
                                 <option value="" disabled selected>选择 County...</option>
-                                <option value="Fort Bend">Fort Bend</option>
-                                <option value="Harris">Harris</option>
-                                <option value="Montgomery">Montgomery</option>
-                                <option value="Brazoria">Brazoria</option>
-                                <option value="Galveston">Galveston</option>
-                                <option value="Liberty">Liberty</option>
-                                <option value="Waller">Waller</option>
-                                <option value="Other">Other</option>
+                                <optgroup label="大休斯顿及周边 (Greater Houston)">
+                                    <option value="Fort Bend">Fort Bend</option>
+                                    <option value="Harris">Harris</option>
+                                    <option value="Montgomery">Montgomery</option>
+                                    <option value="Brazoria">Brazoria</option>
+                                    <option value="Galveston">Galveston</option>
+                                    <option value="Liberty">Liberty</option>
+                                    <option value="Waller">Waller</option>
+                                    <option value="Chambers">Chambers</option>
+                                    <option value="Austin">Austin</option>
+                                </optgroup>
+                                <optgroup label="德州其他主要县 (Other Texas Counties)">
+                                    <option value="Bexar">Bexar (San Antonio)</option>
+                                    <option value="Collin">Collin (Plano/Frisco)</option>
+                                    <option value="Dallas">Dallas</option>
+                                    <option value="Denton">Denton</option>
+                                    <option value="El Paso">El Paso</option>
+                                    <option value="Hidalgo">Hidalgo</option>
+                                    <option value="Tarrant">Tarrant (Fort Worth)</option>
+                                    <option value="Travis">Travis (Austin)</option>
+                                    <option value="Williamson">Williamson</option>
+                                </optgroup>
+                                <option value="Other">Other County</option>
                             </select>
                         </div>
                     </div>
