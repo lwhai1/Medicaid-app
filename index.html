@@ -55,7 +55,7 @@
             }
 
             .logo-img {
-                height: 42px !important;
+                height: 40px !important;
                 width: auto !important;
             }
 
@@ -73,10 +73,10 @@
 
             /* 模块分组标题 */
             .section-title {
-                font-size: 10.5pt !important;
+                font-size: 10pt !important;
                 font-weight: bold !important;
                 border-bottom: 1.5px solid #000 !important;
-                margin-top: 8px !important;
+                margin-top: 6px !important;
                 margin-bottom: 4px !important;
                 padding-bottom: 1px !important;
                 color: #000 !important;
@@ -114,9 +114,9 @@
             textarea {
                 width: 100% !important;
                 border: 1px dashed #666 !important;
-                padding: 3px !important;
-                font-size: 9.5pt !important;
-                line-height: 1.3 !important;
+                padding: 2px 4px !important;
+                font-size: 9pt !important;
+                line-height: 1.25 !important;
                 height: auto !important;
                 min-height: auto !important;
                 max-height: none !important;
@@ -314,19 +314,22 @@
                         </div>
                     </div>
 
-                    <div class="grid-print-1 mb-3">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblInsurance">原医疗保险公司及卡号</label>
-                        <input type="text" id="currentInsurance" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none" data-i18n-placeholder="phInsurance" placeholder="例如: UnitedHealthcare / ID...">
+                    <!-- 原保险公司 与 常看医生 并排放在同一行 -->
+                    <div class="grid-print-2 grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblInsurance">原医疗保险公司及卡号</label>
+                            <input type="text" id="currentInsurance" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none" data-i18n-placeholder="phInsurance" placeholder="例如: UnitedHealthcare / ID...">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblDoctors">常看的医生 / 医疗机构</label>
+                            <input type="text" id="doctors" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none" data-i18n-placeholder="phDoctors" placeholder="家庭医生/专科医生/诊所...">
+                        </div>
                     </div>
 
-                    <div class="grid-print-1 mb-3">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblMeds">常用药品清单</label>
-                        <textarea id="medications" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none" data-i18n-placeholder="phMeds" placeholder="请列出日常服用的药物名称及剂量..."></textarea>
-                    </div>
-
+                    <!-- 常用药品清单独占完整一行，预留充分垂直拓展空间 -->
                     <div class="grid-print-1 mb-5">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblDoctors">常看的医生 / 医疗机构</label>
-                        <textarea id="doctors" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none" data-i18n-placeholder="phDoctors" placeholder="请列出希望保留的家庭医生或专科医生姓名/诊所..."></textarea>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblMeds">常用药品清单</label>
+                        <textarea id="medications" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none" data-i18n-placeholder="phMeds" placeholder="请列出日常服用的药物名称及剂量..."></textarea>
                     </div>
 
                     <!-- 第三部分：下一年度保险及医疗需求 -->
@@ -337,7 +340,7 @@
                     <div class="grid-print-2 grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="col1Title">需求或备注</label>
-                            <textarea id="notes" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
+                            <textarea id="notes" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
                         </div>
 
                         <div>

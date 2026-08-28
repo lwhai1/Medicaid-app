@@ -45,7 +45,7 @@ const i18nData = {
         lblMeds: "常用药品清单",
         phMeds: "请列出日常服用的药物名称及剂量...",
         lblDoctors: "常看的医生 / 医疗机构",
-        phDoctors: "请列出希望保留的家庭医生或专科医生姓名/诊所...",
+        phDoctors: "家庭医生/专科医生/诊所...",
         sec3Title: "三、 下一年度保险及医疗需求",
         col1Title: "需求或备注",
         col2Title: "预约保险代理沟通时间",
@@ -124,13 +124,23 @@ window.toggleLanguage = function() {
     });
 };
 
-// 自动调整 textarea 高度，防止打印截断
-function prepareTextareasForPrint() {
+// 自动调整所有 textarea 的高度
+function autoResizeTextareas() {
     document.querySelectorAll('textarea').forEach(textarea => {
         textarea.style.height = 'auto';
-        textarea.style.height = textarea.scrollHeight + 'px';
+        textarea.style.height = (textarea.scrollHeight + 4) + 'px';
     });
 }
+
+// 绑定页面加载及输入监听，保证打字时也自动扩增
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('textarea').forEach(textarea => {
+        textarea.addEventListener('input', () => {
+            textarea.style.height = 'auto';
+            textarea.style.height = (textarea.scrollHeight + 4) + 'px';
+        });
+    });
+});
 
 window.saveToCloudAndPrint = async function(event) {
     event.preventDefault();
@@ -169,8 +179,8 @@ window.saveToCloudAndPrint = async function(event) {
 
         alert(currentLang === 'zh' ? '✅ 数据已成功同步保存至服务器！正在准备打印报告...' : '✅ Saved to cloud! Preparing print report...');
         
-        // 打印前撑开多行文本框
-        prepareTextareasForPrint();
+        // 打印前强制计算并撑开所有多行文本
+        autoResizeTextareas();
         window.print();
     } catch (error) {
         console.error("Save error:", error);
@@ -239,8 +249,8 @@ function populateFormFields(docId, data) {
     document.getElementById('notes').value = data.notes || '';
     document.getElementById('appointmentTime').value = data.appointmentTime || '';
 
-    // 回显数据后自动撑开多行文本框高度
-    setTimeout(prepareTextareasForPrint, 100);
+    // 数据回显完成后自动展开文本域
+    setTimeout(autoResizeTextareas, 100);
 }
 
 // ----------------- 管理员后台逻辑 -----------------
