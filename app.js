@@ -44,8 +44,8 @@ const i18nData = {
         phInsurance: "例如: UnitedHealthcare / ID / Plan Name...",
         lblMeds: "常用药品清单",
         phMeds: "请列出日常服用的药物名称及剂量...",
-        lblDoctors: "常看的医生 / 医疗机构",
-        phDoctors: "请列出希望保留的家庭医生或专科医生/诊所...",
+        lblDoctors: "常看的医生、医疗机构和药房",
+        phDoctors: "请列出希望保留的家庭医生、专科医生/诊所或常用药房...",
         sec3Title: "三、 下一年度保险及医疗需求",
         col1Title: "需求或备注",
         col2Title: "预约保险代理沟通时间",
@@ -86,8 +86,8 @@ const i18nData = {
         phInsurance: "e.g., UnitedHealthcare / Member ID / Plan Name...",
         lblMeds: "Current Medications",
         phMeds: "List daily medications and dosages...",
-        lblDoctors: "Preferred Doctors / Clinics",
-        phDoctors: "List primary care physicians or specialists/clinics...",
+        lblDoctors: "Preferred Doctors, Clinics & Pharmacies",
+        phDoctors: "List primary care physicians, specialists/clinics or preferred pharmacies...",
         sec3Title: "3. Next Year Insurance & Medical Needs",
         col1Title: "Needs / Remarks",
         col2Title: "Agent Appointment Time",
@@ -106,7 +106,7 @@ const i18nData = {
 let currentLang = 'zh';
 let rawCloudData = []; 
 
-window.toggleLanguage = function() {
+function toggleLanguage() {
     currentLang = currentLang === 'zh' ? 'en' : 'zh';
     document.getElementById('langToggleBtn').innerText = currentLang === 'zh' ? 'English' : '中文';
     
@@ -122,21 +122,17 @@ window.toggleLanguage = function() {
             el.placeholder = i18nData[currentLang][key];
         }
     });
-};
+}
 
-/**
- * 将多行文本（换行符）转换成用分号 ”；“ 分隔的单行横向文本
- */
 function convertLinesToInlineSemicolons(text) {
     if (!text) return "";
     return text
-        .split(/\r?\n/)                     // 按换行拆分
-        .map(item => item.trim())           // 去除每行首尾空格
-        .filter(item => item.length > 0)    // 过滤空行
-        .join("；");                        // 用中文分号连接
+        .split(/\r?\n/)
+        .map(item => item.trim())
+        .filter(item => item.length > 0)
+        .join("；");
 }
 
-// 自动调整所有 textarea 的高度
 function autoResizeTextareas() {
     document.querySelectorAll('textarea').forEach(textarea => {
         textarea.style.height = 'auto';
@@ -144,7 +140,6 @@ function autoResizeTextareas() {
     });
 }
 
-// 绑定页面加载及输入监听
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('textarea').forEach(textarea => {
         textarea.addEventListener('input', () => {
@@ -154,20 +149,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-window.saveToCloudAndPrint = async function(event) {
+async function saveToCloudAndPrint(event) {
     event.preventDefault();
     const btn = document.getElementById('submitBtn');
     btn.disabled = true;
     btn.innerText = currentLang === 'zh' ? '正在上传服务器...' : 'Uploading...';
 
-    // 格式化“常用药品”与“常看医生”，将多行合并为“；”分隔的单行横向文本
     const medsInput = document.getElementById('medications');
     const docsInput = document.getElementById('doctors');
     
     const formattedMeds = convertLinesToInlineSemicolons(medsInput.value);
     const formattedDocs = convertLinesToInlineSemicolons(docsInput.value);
 
-    // 将格式化后的文本写回框内，方便打印呈单行横向显示
     if (formattedMeds) medsInput.value = formattedMeds;
     if (formattedDocs) docsInput.value = formattedDocs;
 
@@ -211,9 +204,9 @@ window.saveToCloudAndPrint = async function(event) {
         btn.disabled = false;
         btn.innerText = i18nData[currentLang].btnSubmit;
     }
-};
+}
 
-window.searchCloudRecord = async function() {
+async function searchCloudRecord() {
     const nameStr = document.getElementById('searchNameInput').value.trim();
     const phoneStr = document.getElementById('searchPhoneInput').value.trim();
 
@@ -242,15 +235,15 @@ window.searchCloudRecord = async function() {
     } catch (error) {
         alert('Fetch error: ' + error.message);
     }
-};
+}
 
-window.resetForm = function() {
+function resetForm() {
     document.getElementById('infoForm').reset();
     document.getElementById('docId').value = '';
     document.getElementById('searchNameInput').value = '';
     document.getElementById('searchPhoneInput').value = '';
     document.querySelectorAll('textarea').forEach(ta => ta.style.height = 'auto');
-};
+}
 
 function populateFormFields(docId, data) {
     document.getElementById('docId').value = docId || '';
@@ -274,9 +267,7 @@ function populateFormFields(docId, data) {
     setTimeout(autoResizeTextareas, 100);
 }
 
-// ----------------- 管理员后台逻辑 -----------------
-
-window.toggleAdminView = function() {
+function toggleAdminView() {
     const memberSec = document.getElementById('memberSection');
     const adminSec = document.getElementById('adminSection');
     if (adminSec.classList.contains('hidden')) {
@@ -286,9 +277,9 @@ window.toggleAdminView = function() {
         adminSec.classList.add('hidden');
         memberSec.classList.remove('hidden');
     }
-};
+}
 
-window.loginAdmin = function() {
+function loginAdmin() {
     const pwd = document.getElementById('adminPasswordInput').value;
     if (pwd === 'admin888') {
         document.getElementById('adminLoginForm').classList.add('hidden');
@@ -297,14 +288,14 @@ window.loginAdmin = function() {
     } else {
         alert(currentLang === 'zh' ? '密码错误！' : 'Invalid Password!');
     }
-};
+}
 
-window.logoutAdmin = function() {
+function logoutAdmin() {
     document.getElementById('adminPasswordInput').value = '';
     document.getElementById('adminDashboard').classList.add('hidden');
     document.getElementById('adminLoginForm').classList.remove('hidden');
     toggleAdminView();
-};
+}
 
 async function loadAllAdminData() {
     const tbody = document.getElementById('adminDataTableBody');
@@ -340,14 +331,14 @@ async function loadAllAdminData() {
     }
 }
 
-window.editRecordFromAdmin = async function(docId) {
+async function editRecordFromAdmin(docId) {
     try {
         const docRef = doc(db, "medicaid_members", docId);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
             populateFormFields(docSnap.id, docSnap.data());
-            window.toggleAdminView();
+            toggleAdminView();
             window.scrollTo({ top: 0, behavior: 'smooth' });
             alert(currentLang === 'zh' ? `✅ 已调取会员【${docSnap.data().fullName}】的数据，修改后保存即可更新！` : `✅ Loaded member [${docSnap.data().fullName}].`);
         } else {
@@ -357,17 +348,17 @@ window.editRecordFromAdmin = async function(docId) {
         console.error("Fetch record error:", error);
         alert('❌ 调取失败: ' + error.message);
     }
-};
+}
 
-window.exportToExcel = function() {
+function exportToExcel() {
     if (rawCloudData.length === 0) return alert('暂无数据可导出');
     const ws = XLSX.utils.json_to_sheet(rawCloudData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "会员档案");
     XLSX.writeFile(wb, `美福阳光会员信息表_${new Date().toISOString().slice(0,10)}.xlsx`);
-};
+}
 
-window.exportToCSV = function() {
+function exportToCSV() {
     if (rawCloudData.length === 0) return alert('暂无数据可导出');
     const ws = XLSX.utils.json_to_sheet(rawCloudData);
     const csv = XLSX.utils.sheet_to_csv(ws);
@@ -376,4 +367,16 @@ window.exportToCSV = function() {
     link.href = URL.createObjectURL(blob);
     link.download = `美福阳光会员信息表_${new Date().toISOString().slice(0,10)}.csv`;
     link.click();
-};
+}
+
+// 显式挂载全局函数，确保 ES Module 作用域下 HTML 内联 onclick 可正常调用
+window.toggleLanguage = toggleLanguage;
+window.saveToCloudAndPrint = saveToCloudAndPrint;
+window.searchCloudRecord = searchCloudRecord;
+window.resetForm = resetForm;
+window.toggleAdminView = toggleAdminView;
+window.loginAdmin = loginAdmin;
+window.logoutAdmin = logoutAdmin;
+window.editRecordFromAdmin = editRecordFromAdmin;
+window.exportToExcel = exportToExcel;
+window.exportToCSV = exportToCSV;
