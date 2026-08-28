@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>美福阳光保险信息采集系统</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SheetJS (用于导出 Excel/CSV) -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <style>
+        /* ---------------- 屏幕预览基础样式 ---------------- */
+        body {
+            background-color: #f3f4f6;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        /* ---------------- 深度优化打印专属样式 ---------------- */
+        @media print {
+            @page {
+                size: letter portrait;
+                margin: 8mm 10mm;
+            }
+
+            /* 隐藏页面导航、按钮、搜索框及后台UI */
+            header, nav, button, input[type="button"], input[type="submit"],
+            #searchInput, .search-card, #adminSection, #langToggleBtn, .no-print {
+                display: none !important;
+            }
+
+            body {
+                background: #fff !important;
+                color: #000 !important;
+                font-size: 10pt !important;
+                line-height: 1.25 !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            .main-card {
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
+            /* 打印页 Logo 专属样式 */
+            .logo-header {
+                display: flex !important;
+                justify-content: center !important;
+                margin-bottom: 8px !important;
+            }
+
+            .logo-img {
+                height: 48px !important;
+                width: auto !important;
+            }
+
+            /* 栅格：将表单重构为双列网格，充分利用右侧空间 */
+            .grid-print-2 {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 6px 16px !important;
+            }
+
+            .grid-print-1 {
+                display: block !important;
+                width: 100% !important;
+            }
+
+            /* 模块分组标题 */
+            .section-title {
+                font-size: 11pt !important;
+                font-weight: bold !important;
+                border-bottom: 1.5px solid #000 !important;
+                margin-top: 10px !important;
+                margin-bottom: 6px !important;
+                padding-bottom: 2px !important;
+                color: #000 !important;
+            }
+
+            label {
+                font-size: 9pt !important;
+                font-weight: bold !important;
+                color: #333 !important;
+                display: block !important;
+                margin-bottom: 2px !important;
+            }
+
+            /* 多行 textarea 打印拉伸与自动适应 */
+            input[type="text"],
+            input[type="tel"],
+            input[type="datetime-local"],
+            textarea {
+                width: 100% !important;
+                border: none !important;
+                border-bottom: 1px solid #666 !important;
+                border-radius: 0 !important;
+                background: transparent !important;
+                padding: 1px 0 !important;
+                font-size: 10pt !important;
+                box-shadow: none !important;
+                height: auto !important;
+                min-height: auto !important;
+                max-height: none !important;
+                overflow: visible !important;
+                white-space: pre-wrap !important;
+                word-break: break-word !important;
+            }
+
+            textarea {
+                border: 1px dashed #aaa !important;
+                padding: 3px !important;
+            }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        
+        <!-- 顶部导航栏 (打印时隐藏) -->
+        <div class="flex justify-between items-center mb-6 no-print">
+            <button id="langToggleBtn" onclick="toggleLanguage()" class="px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm font-semibold text-gray-700 hover:bg-gray-50">
+                English
+            </button>
+            <button onclick="toggleAdminView()" class="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg shadow hover:bg-indigo-700" data-i18n="adminPortal">
+                管理员后台
+            </button>
+        </div>
+
+        <!-- 前台会员采集区域 -->
+        <div id="memberSection">
+            <!-- 系统 LOGO 与标题 HEADER -->
+            <div class="text-center mb-6">
+                <div class="logo-header flex justify-center mb-3">
+                    <img src="./logo.png" alt="MEDX SUNSHINE Logo" class="logo-img h-14 md:h-16 w-auto object-contain">
+                </div>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800" data-i18n="mainTitle">美福阳光保险信息采集系统</h1>
+                <p class="text-sm text-gray-500 mt-1" data-i18n="subTitle">Medicare & Medicaid 会员年度保险更新云端服务平台</p>
+            </div>
+
+            <!-- 档案搜索栏 (打印时隐藏) -->
+            <div class="search-card bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6 shadow-sm no-print">
+                <h3 class="font-bold text-blue-900 text-base mb-1" data-i18n="searchTitle">☁️ 档案调取与检索</h3>
+                <p class="text-xs text-blue-700 mb-3" data-i18n="searchDesc">输入会员姓名或电话号码，直接从云端服务器调取历史档案，避免重复输入。</p>
+                <div class="flex gap-2">
+                    <input type="text" id="searchInput" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" data-i18n-placeholder="searchPlaceholder" placeholder="输入姓名或电话号码...">
+                    <button onclick="searchCloudRecord()" class="px-5 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 shadow" data-i18n="btnSearch">调取档案</button>
+                    <button onclick="resetForm()" class="px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300" data-i18n="btnReset">清空/新建</button>
+                </div>
+            </div>
+
+            <!-- 主采集表单 -->
+            <div class="main-card bg-white rounded-xl shadow-md p-6 border border-gray-100">
+                <form id="infoForm" onsubmit="saveToCloudAndPrint(event)">
+                    <input type="hidden" id="docId" value="">
+
+                    <!-- 第一部分：基本信息 -->
+                    <div class="section-title text-lg font-bold text-gray-800 pb-1 mb-4 border-b-2 border-red-500" data-i18n="sec1Title">
+                        一、 会员基本信息
+                    </div>
+
+                    <div class="grid-print-2 grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblFullName">会员姓名 *</label>
+                            <input type="text" id="fullName" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblDL">驾照号 / State ID *</label>
+                            <input type="text" id="dlNumber" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblPhone">电话号码 *</label>
+                            <input type="tel" id="phone" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblZip">邮政编码 (ZIP Code) *</label>
+                            <input type="text" id="zipCode" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid-print-1 mb-6">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblAddress">家庭详细住址 *</label>
+                        <input type="text" id="address" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+
+                    <!-- 第二部分：医疗需求 -->
+                    <div class="section-title text-lg font-bold text-gray-800 pb-1 mb-4 border-b-2 border-red-500" data-i18n="sec2Title">
+                        二、 原有保险及医疗需求
+                    </div>
+
+                    <div class="grid-print-2 grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblInsurance">原医疗保险公司及卡号</label>
+                            <input type="text" id="currentInsurance" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none" data-i18n-placeholder="phInsurance" placeholder="例如: UnitedHealthcare / ID...">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblAppt">预约保险代理沟通时间</label>
+                            <input type="datetime-local" id="appointmentTime" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid-print-1 mb-4">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblMeds">常用药品清单</label>
+                        <textarea id="medications" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none" data-i18n-placeholder="phMeds" placeholder="请列出日常服用的药物名称及剂量..."></textarea>
+                    </div>
+
+                    <div class="grid-print-1 mb-4">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblDoctors">常看的医生 / 医疗机构</label>
+                        <textarea id="doctors" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none" data-i18n-placeholder="phDoctors" placeholder="请列出希望保留的家庭医生或专科医生姓名/诊所..."></textarea>
+                    </div>
+
+                    <div class="grid-print-1 mb-6">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblNotes">其他特殊需求或备注</label>
+                        <textarea id="notes" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
+                    </div>
+
+                    <!-- 提交保存按钮 (打印时隐藏) -->
+                    <div class="text-center no-print pt-2">
+                        <button type="submit" id="submitBtn" class="w-full md:w-auto px-8 py-3 bg-red-600 text-white text-lg font-bold rounded-xl shadow-lg hover:bg-red-700 transition duration-150" data-i18n="btnSubmit">
+                            ☁️ 保存至服务器并生成纸质报告
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 管理员后台 View (打印时隐藏) -->
+        <div id="adminSection" class="hidden no-print">
+            <div id="adminLoginForm" class="max-w-md mx-auto bg-white rounded-xl shadow-md p-6 border">
+                <h2 class="text-xl font-bold text-gray-800 mb-4 text-center" data-i18n="adminLoginTitle">管理员身份验证</h2>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="lblAdminPwd">管理员密码</label>
+                    <input type="password" id="adminPasswordInput" class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="loginAdmin()" class="flex-1 py-2 bg-indigo-600 text-white rounded-md font-semibold hover:bg-indigo-700" data-i18n="btnLogin">登录后台</button>
+                    <button onclick="toggleAdminView()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md">返回</button>
+                </div>
+            </div>
+
+            <div id="adminDashboard" class="hidden bg-white rounded-xl shadow-md p-6 border">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800" data-i18n="adminDashTitle">会员档案管理后台</h2>
+                        <p class="text-xs text-gray-500" data-i18n="adminDashDesc">实时调取全量提交数据，支持一键导出 Excel / CSV 报表</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="exportToExcel()" class="px-3 py-2 bg-green-600 text-white rounded text-sm font-semibold hover:bg-green-700">📊 导出 Excel</button>
+                        <button onclick="exportToCSV()" class="px-3 py-2 bg-emerald-600 text-white rounded text-sm font-semibold hover:bg-emerald-700">📄 导出 CSV</button>
+                        <button onclick="logoutAdmin()" class="px-3 py-2 bg-gray-600 text-white rounded text-sm hover:bg-gray-700" data-i18n="btnLogout">退出登录</button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-gray-100 border-b">
+                                <th class="p-3">姓名</th>
+                                <th class="p-3">电话</th>
+                                <th class="p-3">驾照/ID</th>
+                                <th class="p-3">Zip Code</th>
+                                <th class="p-3">原保险</th>
+                                <th class="p-3">预约时间</th>
+                                <th class="p-3">更新时间</th>
+                                <th class="p-3 text-center">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminDataTableBody">
+                            <!-- JS 动态渲染数据 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 导入外部逻辑 JS 模块 -->
+    <script type="module" src="./app.js"></script>
+</body>
+</html>
