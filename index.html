@@ -90,11 +90,12 @@
                 margin-bottom: 1px !important;
             }
 
-            /* 多行 textarea 打印拉伸与自动适应 */
+            /* 打印时下拉菜单与输入框表现一致 */
             input[type="text"],
             input[type="tel"],
             input[type="date"],
             input[type="datetime-local"],
+            select,
             textarea {
                 width: 100% !important;
                 border: none !important;
@@ -110,6 +111,9 @@
                 overflow: visible !important;
                 white-space: pre-wrap !important;
                 word-break: break-word !important;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
             }
 
             textarea {
@@ -178,26 +182,50 @@
                             <input type="date" id="dob" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none">
                         </div>
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblDL">驾照号 / State ID *</label>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblDL">证件号 / ID Number *</label>
                             <input type="text" id="dlNumber" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none">
                         </div>
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblPhone">电话号码 *</label>
                             <input type="tel" id="phone" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none">
                         </div>
+                    </div>
+
+                    <!-- 地址连贯区块：家庭住址 -> 州 -> 邮编 -> County -->
+                    <div class="grid-print-1 mb-3">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblAddress">家庭详细住址 *</label>
+                        <input type="text" id="address" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Street address...">
+                    </div>
+
+                    <div class="grid-print-2 grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblCounty">所在县/郡 (County) *</label>
-                            <input type="text" id="county" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none" data-i18n-placeholder="phCounty" placeholder="例如: Fort Bend / Harris">
+                            <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblState">州 (State) *</label>
+                            <select id="state" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white">
+                                <option value="TX" selected>Texas (TX)</option>
+                                <option value="CA">California (CA)</option>
+                                <option value="NY">New York (NY)</option>
+                                <option value="FL">Florida (FL)</option>
+                                <option value="Other">Other</option>
+                            </select>
                         </div>
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblZip">邮政编码 (ZIP Code) *</label>
                             <input type="text" id="zipCode" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none">
                         </div>
-                    </div>
-
-                    <div class="grid-print-1 mb-5">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblAddress">家庭详细住址 *</label>
-                        <input type="text" id="address" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblCounty">所在县/郡 (County) *</label>
+                            <select id="county" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white">
+                                <option value="" disabled selected>选择 County...</option>
+                                <option value="Fort Bend">Fort Bend</option>
+                                <option value="Harris">Harris</option>
+                                <option value="Montgomery">Montgomery</option>
+                                <option value="Brazoria">Brazoria</option>
+                                <option value="Galveston">Galveston</option>
+                                <option value="Liberty">Liberty</option>
+                                <option value="Waller">Waller</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
                     </div>
 
                     <!-- 第二部分：医疗需求与卡号 -->
@@ -283,7 +311,7 @@
                                 <th class="p-3">姓名</th>
                                 <th class="p-3">DOB</th>
                                 <th class="p-3">电话</th>
-                                <th class="p-3">County</th>
+                                <th class="p-3">州/County</th>
                                 <th class="p-3">MBI(红蓝卡)</th>
                                 <th class="p-3">原保险</th>
                                 <th class="p-3">更新时间</th>

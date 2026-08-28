@@ -3,7 +3,6 @@ import {
     getFirestore, collection, addDoc, updateDoc, doc, getDoc, getDocs, query, where 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// ⚠️ 请确认使用您的真实 Firebase Config
 const firebaseConfig = {
     apiKey: "AIzaSyAFReJ8q3PnNDY41A4dRvHMj-LcWbPx4P0",
     authDomain: "sunshine-insurance-54216.firebaseapp.com",
@@ -16,7 +15,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// 多语言字典定义 (新增 County / DOB / MBI 词条)
+// 多语言字典定义 (增加 State 及 ID Number 更新)
 const i18nData = {
     zh: {
         adminPortal: "管理员后台",
@@ -31,12 +30,12 @@ const i18nData = {
         sec1Title: "一、 会员基本信息",
         lblFullName: "会员姓名 *",
         lblDob: "出生日期 (DOB) *",
-        lblDL: "驾照号 / State ID *",
+        lblDL: "证件号 / ID Number *",
         lblPhone: "电话号码 *",
-        lblCounty: "所在县/郡 (County) *",
-        phCounty: "例如: Fort Bend / Harris",
-        lblZip: "邮政编码 (ZIP Code) *",
         lblAddress: "家庭详细住址 *",
+        lblState: "州 (State) *",
+        lblZip: "邮政编码 (ZIP Code) *",
+        lblCounty: "所在县/郡 (County) *",
         sec2Title: "二、 原有保险及医疗需求",
         lblMbi: "红蓝卡号 (Medicare MBI)",
         lblMedicaidId: "白卡号 (Medicaid ID)",
@@ -69,12 +68,12 @@ const i18nData = {
         sec1Title: "1. Basic Member Information",
         lblFullName: "Full Name *",
         lblDob: "Date of Birth (DOB) *",
-        lblDL: "Driver's License / State ID *",
+        lblDL: "ID Number *",
         lblPhone: "Phone Number *",
-        lblCounty: "County *",
-        phCounty: "e.g., Fort Bend / Harris",
-        lblZip: "ZIP Code *",
         lblAddress: "Home Address *",
+        lblState: "State *",
+        lblZip: "ZIP Code *",
+        lblCounty: "County *",
         sec2Title: "2. Existing Insurance & Medical Needs",
         lblMbi: "Medicare Number (MBI)",
         lblMedicaidId: "Medicaid ID",
@@ -129,9 +128,10 @@ window.saveToCloudAndPrint = async function(event) {
         dob: document.getElementById('dob').value,
         dlNumber: document.getElementById('dlNumber').value.trim(),
         phone: document.getElementById('phone').value.trim(),
-        county: document.getElementById('county').value.trim(),
-        zipCode: document.getElementById('zipCode').value.trim(),
         address: document.getElementById('address').value.trim(),
+        state: document.getElementById('state').value,
+        zipCode: document.getElementById('zipCode').value.trim(),
+        county: document.getElementById('county').value,
         mbiNumber: document.getElementById('mbiNumber').value.trim(),
         medicaidId: document.getElementById('medicaidId').value.trim(),
         currentInsurance: document.getElementById('currentInsurance').value.trim(),
@@ -205,9 +205,10 @@ function populateFormFields(docId, data) {
     document.getElementById('dob').value = data.dob || '';
     document.getElementById('dlNumber').value = data.dlNumber || '';
     document.getElementById('phone').value = data.phone || '';
-    document.getElementById('county').value = data.county || '';
-    document.getElementById('zipCode').value = data.zipCode || '';
     document.getElementById('address').value = data.address || '';
+    document.getElementById('state').value = data.state || 'TX';
+    document.getElementById('zipCode').value = data.zipCode || '';
+    document.getElementById('county').value = data.county || '';
     document.getElementById('mbiNumber').value = data.mbiNumber || '';
     document.getElementById('medicaidId').value = data.medicaidId || '';
     document.getElementById('currentInsurance').value = data.currentInsurance || '';
@@ -268,7 +269,7 @@ async function loadAllAdminData() {
                 <td class="p-3 font-semibold text-gray-800">${data.fullName || ''}</td>
                 <td class="p-3">${data.dob || ''}</td>
                 <td class="p-3">${data.phone || ''}</td>
-                <td class="p-3">${data.county || ''}</td>
+                <td class="p-3">${data.state || 'TX'} / ${data.county || ''}</td>
                 <td class="p-3">${data.mbiNumber || ''}</td>
                 <td class="p-3">${data.currentInsurance || ''}</td>
                 <td class="p-3 text-gray-500">${data.updatedAt || ''}</td>
