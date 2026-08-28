@@ -1,395 +1,310 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>美福阳光保险信息采集系统</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- SheetJS (用于导出 Excel/CSV) -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
-    <style>
-        /* ---------------- 屏幕预览基础样式 ---------------- */
-        body {
-            background-color: #f3f4f6;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-        }
-
-        /* ---------------- 深度优化打印专属样式 ---------------- */
-        @media print {
-            @page {
-                size: letter portrait;
-                margin: 6mm 8mm;
-            }
-
-            /* 隐藏页面导航、按钮、搜索框及后台UI */
-            header, nav, button, input[type="button"], input[type="submit"],
-            #searchInput, .search-card, #adminSection, #langToggleBtn, .no-print {
-                display: none !important;
-            }
-
-            body {
-                background: #fff !important;
-                color: #000 !important;
-                font-size: 9.5pt !important;
-                line-height: 1.2 !important;
-                padding: 0 !important;
-                margin: 0 !important;
-            }
-
-            .main-card {
-                box-shadow: none !important;
-                border: none !important;
-                padding: 0 !important;
-                margin: 0 !important;
-                width: 100% !important;
-                max-width: 100% !important;
-            }
-
-            /* 打印页 Logo 专属样式 */
-            .logo-header {
-                display: flex !important;
-                justify-content: center !important;
-                margin-bottom: 4px !important;
-            }
-
-            .logo-img {
-                height: 42px !important;
-                width: auto !important;
-            }
-
-            /* 栅格：将表单重构为双列网格 */
-            .grid-print-2 {
-                display: grid !important;
-                grid-template-columns: 1fr 1fr !important;
-                gap: 4px 14px !important;
-            }
-
-            .grid-print-1 {
-                display: block !important;
-                width: 100% !important;
-            }
-
-            /* 模块分组标题 */
-            .section-title {
-                font-size: 10.5pt !important;
-                font-weight: bold !important;
-                border-bottom: 1.5px solid #000 !important;
-                margin-top: 8px !important;
-                margin-bottom: 4px !important;
-                padding-bottom: 1px !important;
-                color: #000 !important;
-            }
-
-            label {
-                font-size: 8.5pt !important;
-                font-weight: bold !important;
-                color: #333 !important;
-                display: block !important;
-                margin-bottom: 1px !important;
-            }
-
-            /* 打印时下拉菜单与输入框表现一致 */
-            input[type="text"],
-            input[type="tel"],
-            input[type="date"],
-            input[type="datetime-local"],
-            select,
-            textarea {
-                width: 100% !important;
-                border: none !important;
-                border-bottom: 1px solid #666 !important;
-                border-radius: 0 !important;
-                background: transparent !important;
-                padding: 1px 0 !important;
-                font-size: 9.5pt !important;
-                box-shadow: none !important;
-                height: auto !important;
-                min-height: auto !important;
-                max-height: none !important;
-                overflow: visible !important;
-                white-space: pre-wrap !important;
-                word-break: break-word !important;
-                -webkit-appearance: none;
-                -moz-appearance: none;
-                appearance: none;
-            }
-
-            textarea {
-                border: 1px dashed #aaa !important;
-                padding: 2px !important;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>美福阳光 - 客户保险及基本信息采集系统</title>
+  <style>
+    :root {
+      --primary-color: #0056b3;
+      --border-color: #ccc;
+      --bg-color: #f8f9fa;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg-color);
+      margin: 0;
+      padding: 20px;
+    }
+    .form-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    h2 {
+      text-align: center;
+      color: var(--primary-color);
+      margin-bottom: 25px;
+      border-bottom: 2px solid var(--primary-color);
+      padding-bottom: 10px;
+    }
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #333;
+      margin-top: 20px;
+      margin-bottom: 12px;
+      border-left: 4px solid var(--primary-color);
+      padding-left: 8px;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+    .form-group.full-width {
+      grid-column: span 2;
+    }
+    label {
+      font-size: 0.9rem;
+      margin-bottom: 5px;
+      font-weight: 600;
+      color: #444;
+    }
+    label .required {
+      color: red;
+    }
+    input, select, textarea {
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      font-size: 0.95rem;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+    .btn-submit {
+      width: 100%;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 25px;
+      transition: background-color 0.2s;
+    }
+    .btn-submit:hover {
+      background-color: #004085;
+    }
+    @media (max-width: 600px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .form-group.full-width {
+        grid-column: span 1;
+      }
+    }
+  </style>
 </head>
-<body class="p-4 md:p-8">
+<body>
 
-    <div class="max-w-4xl mx-auto">
-        
-        <!-- 顶部导航栏 (打印时隐藏) -->
-        <div class="flex justify-between items-center mb-6 no-print">
-            <button id="langToggleBtn" onclick="toggleLanguage()" class="px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm font-semibold text-gray-700 hover:bg-gray-50">
-                English
-            </button>
-            <button onclick="toggleAdminView()" class="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg shadow hover:bg-indigo-700" data-i18n="adminPortal">
-                管理员后台
-            </button>
-        </div>
-
-        <!-- 前台会员采集区域 -->
-        <div id="memberSection">
-            <!-- 系统 LOGO 与标题 HEADER -->
-            <div class="text-center mb-6">
-                <div class="logo-header flex justify-center mb-3">
-                    <img src="./logo.png" alt="MEDX SUNSHINE Logo" class="logo-img h-14 md:h-16 w-auto object-contain">
-                </div>
-                <h1 class="text-2xl md:text-3xl font-bold text-gray-800" data-i18n="mainTitle">美福阳光保险信息采集系统</h1>
-                <p class="text-sm text-gray-500 mt-1" data-i18n="subTitle">Medicare & Medicaid 会员年度保险更新云端服务平台</p>
-            </div>
-
-            <!-- 安全防护档案搜索栏 (禁用自动填充，解决显示其他人名字的问题) -->
-            <div class="search-card bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6 shadow-sm no-print">
-                <h3 class="font-bold text-blue-900 text-base mb-1" data-i18n="searchTitle">🔒 安全检索与调取</h3>
-                <p class="text-xs text-blue-700 mb-3" data-i18n="searchDesc">为保护个人隐私，需同时匹配【姓名】与【电话号码】方可调取历史档案。</p>
-                <div class="grid grid-cols-1 md:grid-cols-5 gap-2">
-                    <input type="text" id="searchNameInput" autocomplete="off" class="md:col-span-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" data-i18n-placeholder="searchNamePlaceholder" placeholder="会员姓名...">
-                    <input type="tel" id="searchPhoneInput" autocomplete="off" class="md:col-span-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" data-i18n-placeholder="searchPhonePlaceholder" placeholder="注册电话号码...">
-                    <div class="flex gap-1 md:col-span-1">
-                        <button onclick="searchCloudRecord()" class="flex-1 px-3 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 shadow text-sm" data-i18n="btnSearch">验证调取</button>
-                        <button onclick="resetForm()" class="px-3 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300 text-sm" data-i18n="btnReset">清空</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 主采集表单 -->
-            <div class="main-card bg-white rounded-xl shadow-md p-6 border border-gray-100">
-                <form id="infoForm" onsubmit="saveToCloudAndPrint(event)">
-                    <input type="hidden" id="docId" value="">
-
-                    <!-- 第一部分：基本信息 -->
-                    <div class="section-title text-lg font-bold text-gray-800 pb-1 mb-3 border-b-2 border-red-500" data-i18n="sec1Title">
-                        一、 会员基本信息
-                    </div>
-
-                    <div class="grid-print-2 grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblFullName">会员姓名 *</label>
-                            <input type="text" id="fullName" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblDob">出生日期 (DOB) *</label>
-                            <input type="date" id="dob" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblDL">证件号 / ID Number *</label>
-                            <input type="text" id="dlNumber" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblPhone">电话号码 *</label>
-                            <input type="tel" id="phone" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                        </div>
-                    </div>
-
-                    <!-- 地址连贯区块：家庭住址 -> 州 -> 邮编 -> County -->
-                    <div class="grid-print-1 mb-3">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblAddress">家庭详细住址 *</label>
-                        <input type="text" id="address" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Street address...">
-                    </div>
-
-                    <div class="grid-print-2 grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblState">州 (State) *</label>
-                            <select id="state" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white">
-                                <option value="TX" selected>Texas (TX)</option>
-                                <option value="AL">Alabama (AL)</option>
-                                <option value="AK">Alaska (AK)</option>
-                                <option value="AZ">Arizona (AZ)</option>
-                                <option value="AR">Arkansas (AR)</option>
-                                <option value="CA">California (CA)</option>
-                                <option value="CO">Colorado (CO)</option>
-                                <option value="CT">Connecticut (CT)</option>
-                                <option value="DE">Delaware (DE)</option>
-                                <option value="FL">Florida (FL)</option>
-                                <option value="GA">Georgia (GA)</option>
-                                <option value="HI">Hawaii (HI)</option>
-                                <option value="ID">Idaho (ID)</option>
-                                <option value="IL">Illinois (IL)</option>
-                                <option value="IN">Indiana (IN)</option>
-                                <option value="IA">Iowa (IA)</option>
-                                <option value="KS">Kansas (KS)</option>
-                                <option value="KY">Kentucky (KY)</option>
-                                <option value="LA">Louisiana (LA)</option>
-                                <option value="ME">Maine (ME)</option>
-                                <option value="MD">Maryland (MD)</option>
-                                <option value="MA">Massachusetts (MA)</option>
-                                <option value="MI">Michigan (MI)</option>
-                                <option value="MN">Minnesota (MN)</option>
-                                <option value="MS">Mississippi (MS)</option>
-                                <option value="MO">Missouri (MO)</option>
-                                <option value="MT">Montana (MT)</option>
-                                <option value="NE">Nebraska (NE)</option>
-                                <option value="NV">Nevada (NV)</option>
-                                <option value="NH">New Hampshire (NH)</option>
-                                <option value="NJ">New Jersey (NJ)</option>
-                                <option value="NM">New Mexico (NM)</option>
-                                <option value="NY">New York (NY)</option>
-                                <option value="NC">North Carolina (NC)</option>
-                                <option value="ND">North Dakota (ND)</option>
-                                <option value="OH">Ohio (OH)</option>
-                                <option value="OK">Oklahoma (OK)</option>
-                                <option value="OR">Oregon (OR)</option>
-                                <option value="PA">Pennsylvania (PA)</option>
-                                <option value="RI">Rhode Island (RI)</option>
-                                <option value="SC">South Carolina (SC)</option>
-                                <option value="SD">South Dakota (SD)</option>
-                                <option value="TN">Tennessee (TN)</option>
-                                <option value="UT">Utah (UT)</option>
-                                <option value="VT">Vermont (VT)</option>
-                                <option value="VA">Virginia (VA)</option>
-                                <option value="WA">Washington (WA)</option>
-                                <option value="WV">West Virginia (WV)</option>
-                                <option value="WI">Wisconsin (WI)</option>
-                                <option value="WY">Wyoming (WY)</option>
-                                <option value="Other">Other</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblZip">邮政编码 (ZIP Code) *</label>
-                            <input type="text" id="zipCode" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblCounty">所在县/郡 (County) *</label>
-                            <select id="county" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white">
-                                <option value="" disabled selected>选择 County...</option>
-                                <optgroup label="大休斯顿及周边 (Greater Houston)">
-                                    <option value="Fort Bend">Fort Bend</option>
-                                    <option value="Harris">Harris</option>
-                                    <option value="Montgomery">Montgomery</option>
-                                    <option value="Brazoria">Brazoria</option>
-                                    <option value="Galveston">Galveston</option>
-                                    <option value="Liberty">Liberty</option>
-                                    <option value="Waller">Waller</option>
-                                    <option value="Chambers">Chambers</option>
-                                    <option value="Austin">Austin</option>
-                                </optgroup>
-                                <optgroup label="德州其他主要县 (Other Texas Counties)">
-                                    <option value="Bexar">Bexar (San Antonio)</option>
-                                    <option value="Collin">Collin (Plano/Frisco)</option>
-                                    <option value="Dallas">Dallas</option>
-                                    <option value="Denton">Denton</option>
-                                    <option value="El Paso">El Paso</option>
-                                    <option value="Hidalgo">Hidalgo</option>
-                                    <option value="Tarrant">Tarrant (Fort Worth)</option>
-                                    <option value="Travis">Travis (Austin)</option>
-                                    <option value="Williamson">Williamson</option>
-                                </optgroup>
-                                <option value="Other">Other County</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- 第二部分：医疗需求与卡号 -->
-                    <div class="section-title text-lg font-bold text-gray-800 pb-1 mb-3 border-b-2 border-red-500" data-i18n="sec2Title">
-                        二、 原有保险及医疗需求
-                    </div>
-
-                    <div class="grid-print-2 grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblMbi">红蓝卡号 (Medicare MBI)</label>
-                            <input type="text" id="mbiNumber" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="11位卡号...">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblMedicaidId">白卡号 (Medicaid ID)</label>
-                            <input type="text" id="medicaidId" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="State ID...">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblInsurance">原医疗保险公司及卡号</label>
-                            <input type="text" id="currentInsurance" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none" data-i18n-placeholder="phInsurance" placeholder="例如: UnitedHealthcare / ID...">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblAppt">预约保险代理沟通时间</label>
-                            <input type="datetime-local" id="appointmentTime" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                        </div>
-                    </div>
-
-                    <div class="grid-print-1 mb-3">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblMeds">常用药品清单</label>
-                        <textarea id="medications" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none" data-i18n-placeholder="phMeds" placeholder="请列出日常服用的药物名称及剂量..."></textarea>
-                    </div>
-
-                    <div class="grid-print-1 mb-3">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblDoctors">常看的医生 / 医疗机构</label>
-                        <textarea id="doctors" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none" data-i18n-placeholder="phDoctors" placeholder="请列出希望保留的家庭医生或专科医生姓名/诊所..."></textarea>
-                    </div>
-
-                    <div class="grid-print-1 mb-5">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblNotes">其他特殊需求或备注</label>
-                        <textarea id="notes" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
-                    </div>
-
-                    <!-- 提交保存按钮 (打印时隐藏) -->
-                    <div class="text-center no-print pt-2">
-                        <button type="submit" id="submitBtn" class="w-full md:w-auto px-8 py-3 bg-red-600 text-white text-lg font-bold rounded-xl shadow-lg hover:bg-red-700 transition duration-150" data-i18n="btnSubmit">
-                            ☁️ 保存至服务器并生成纸质报告
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- 管理员后台 View (打印时隐藏) -->
-        <div id="adminSection" class="hidden no-print">
-            <div id="adminLoginForm" class="max-w-md mx-auto bg-white rounded-xl shadow-md p-6 border">
-                <h2 class="text-xl font-bold text-gray-800 mb-4 text-center" data-i18n="adminLoginTitle">管理员身份验证</h2>
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="lblAdminPwd">管理员密码</label>
-                    <input type="password" id="adminPasswordInput" class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500">
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="loginAdmin()" class="flex-1 py-2 bg-indigo-600 text-white rounded-md font-semibold hover:bg-indigo-700" data-i18n="btnLogin">登录后台</button>
-                    <button onclick="toggleAdminView()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md">返回</button>
-                </div>
-            </div>
-
-            <div id="adminDashboard" class="hidden bg-white rounded-xl shadow-md p-6 border">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-                    <div>
-                        <h2 class="text-xl font-bold text-gray-800" data-i18n="adminDashTitle">会员档案管理后台</h2>
-                        <p class="text-xs text-gray-500" data-i18n="adminDashDesc">实时调取全量提交数据，支持一键导出 Excel / CSV 报表</p>
-                    </div>
-                    <div class="flex flex-wrap gap-2">
-                        <button onclick="exportToExcel()" class="px-3 py-2 bg-green-600 text-white rounded text-sm font-semibold hover:bg-green-700">📊 导出 Excel</button>
-                        <button onclick="exportToCSV()" class="px-3 py-2 bg-emerald-600 text-white rounded text-sm font-semibold hover:bg-emerald-700">📄 导出 CSV</button>
-                        <button onclick="logoutAdmin()" class="px-3 py-2 bg-gray-600 text-white rounded text-sm hover:bg-gray-700" data-i18n="btnLogout">退出登录</button>
-                    </div>
-                </div>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-sm">
-                        <thead>
-                            <tr class="bg-gray-100 border-b">
-                                <th class="p-3">姓名</th>
-                                <th class="p-3">DOB</th>
-                                <th class="p-3">电话</th>
-                                <th class="p-3">州/County</th>
-                                <th class="p-3">MBI(红蓝卡)</th>
-                                <th class="p-3">原保险</th>
-                                <th class="p-3">更新时间</th>
-                                <th class="p-3 text-center">操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="adminDataTableBody">
-                            <!-- JS 动态渲染数据 -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
+<div class="form-container">
+  <h2>美福阳光 - 客户基本信息与保险采集系统</h2>
+  
+  <form id="insuranceForm" onsubmit="handleSubmit(event)">
+    
+    <!-- 第一部分：基本个人信息 -->
+    <div class="section-title">1. 基本个人信息 (Basic Info)</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>英文姓 (Last Name) <span class="required">*</span></label>
+        <input type="text" name="lastName" required placeholder="如：ZHANG">
+      </div>
+      <div class="form-group">
+        <label>英文名 (First Name) <span class="required">*</span></label>
+        <input type="text" name="firstName" required placeholder="如：SAN">
+      </div>
+      <div class="form-group">
+        <label>中文姓名</label>
+        <input type="text" name="chineseName" placeholder="如：张三">
+      </div>
+      <div class="form-group">
+        <label>出生日期 (DOB) <span class="required">*</span></label>
+        <input type="date" name="dob" required>
+      </div>
+      <div class="form-group">
+        <label>电话号码 (Phone) <span class="required">*</span></label>
+        <input type="tel" name="phone" required placeholder="(346) 481-5602">
+      </div>
+      <div class="form-group">
+        <label>电子邮箱 (Email)</label>
+        <input type="email" name="email" placeholder="example@domain.com">
+      </div>
     </div>
 
-    <!-- 导入外部逻辑 JS 模块 -->
-    <script type="module" src="./app.js"></script>
+    <!-- 第二部分：居住地址与区域划分 (包含 County 与 City 联动) -->
+    <div class="section-title">2. 居住地址信息 (Address & Region)</div>
+    <div class="form-grid">
+      <div class="form-group full-width">
+        <label>详细街道地址 (Street Address) <span class="required">*</span></label>
+        <input type="text" name="streetAddress" required placeholder="如：6501 Westline Dr">
+      </div>
+
+      <!-- County 下拉框 -->
+      <div class="form-group">
+        <label>所属县/郡 (County) <span class="required">*</span></label>
+        <select id="countySelect" name="county" required onchange="handleCountyChange()">
+          <option value="">-- 请选择 County --</option>
+          <option value="Harris">Harris County (哈里斯县)</option>
+          <option value="Fort Bend">Fort Bend County (福特本德县)</option>
+          <option value="Montgomery">Montgomery County (蒙哥马利县)</option>
+          <option value="Brazoria">Brazoria County (布拉佐里亚县)</option>
+          <option value="Galveston">Galveston County (加尔维斯顿县)</option>
+          <option value="Waller">Waller County (沃勒县)</option>
+          <option value="Liberty">Liberty County (利伯蒂县)</option>
+          <option value="Chambers">Chambers County (钱伯斯县)</option>
+          <option value="Other">Other (其他县/郡)</option>
+        </select>
+      </div>
+
+      <!-- City 下拉与自定义输入 -->
+      <div class="form-group">
+        <label>城市 (City) <span class="required">*</span></label>
+        <select id="citySelect" name="citySelect" required onchange="handleCityChange()">
+          <option value="">-- 请先选择 County --</option>
+        </select>
+        <!-- 当选择“其他城市”时显示的自定义输入框 -->
+        <input type="text" id="customCityInput" name="customCity" placeholder="请输入具体城市名称" style="display:none; margin-top:8px;">
+      </div>
+
+      <div class="form-group">
+        <label>州 (State)</label>
+        <input type="text" name="state" value="TX" readonly style="background-color: #e9ecef;">
+      </div>
+      <div class="form-group">
+        <label>邮政编码 (ZIP Code) <span class="required">*</span></label>
+        <input type="text" name="zipCode" required placeholder="如：77036">
+      </div>
+    </div>
+
+    <!-- 第三部分：保险及 Medicaid/Waiver 计划 -->
+    <div class="section-title">3. 保险与 Waiver 资质 (Insurance & Waiver Status)</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Medicaid / 医疗卡号</label>
+        <input type="text" name="medicaidNumber" placeholder="9位数字或相关卡号">
+      </div>
+      <div class="form-group">
+        <label>合作 MCO 保险公司</label>
+        <select name="mcoProvider">
+          <option value="">-- 选择所属保险公司 --</option>
+          <option value="UnitedHealthcare">UnitedHealthcare Community Plan</option>
+          <option value="Superior HealthPlan">Superior HealthPlan</option>
+          <option value="Molina Healthcare">Molina Healthcare</option>
+          <option value="Community Health Choice">Community Health Choice</option>
+          <option value="Amerigroup">Amerigroup / Wellpoint</option>
+          <option value="Other">其他保险</option>
+        </select>
+      </div>
+      <div class="form-group full-width">
+        <label>当前参加的 Waiver 项目 (如有选填)</label>
+        <select name="waiverProgram">
+          <option value="None">无 / 尚未申请 (None)</option>
+          <option value="HCS">HCS (Home and Community-based Services)</option>
+          <option value="TxHmL">TxHmL (Texas Home Living)</option>
+          <option value="CLASS">CLASS (Community Living Assistance)</option>
+          <option value="STAR_PLUS">STAR+PLUS Waiver / PAS</option>
+          <option value="MDCP">MDCP (Medically Dependent Children)</option>
+          <option value="Interest_List">排队等待中 (On Interest List)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- 提交按钮 -->
+    <button type="submit" class="btn-submit">提交采集信息</button>
+  </form>
+</div>
+
+<script>
+  // 休斯敦各大 County 与对应 City 映射数据
+  const countyCityMap = {
+    "Harris": ["Houston (休斯敦)", "Pasadena", "Baytown", "Spring", "Katy", "Humble", "Tomball", "Bellaire", "Webster"],
+    "Fort Bend": ["Sugar Land (糖城)", "Missouri City", "Richmond", "Rosenberg", "Stafford", "Katy", "Fresno"],
+    "Montgomery": ["The Woodlands", "Conroe", "Magnolia", "Montgomery", "Splendora"],
+    "Brazoria": ["Pearland (梨城)", "Alvin", "Lake Jackson", "Angleton", "Manvel"],
+    "Galveston": ["League City", "Galveston", "Friendswood", "Texas City", "Dickinson"],
+    "Waller": ["Waller", "Hempstead", "Prairie View", "Katy"],
+    "Liberty": ["Liberty", "Dayton", "Cleveland"],
+    "Chambers": ["Mont Belvieu", "Anahuac", "Winnie"]
+  };
+
+  // County 切换时联动更新 City
+  function handleCountyChange() {
+    const countySelect = document.getElementById("countySelect");
+    const citySelect = document.getElementById("citySelect");
+    const customCityInput = document.getElementById("customCityInput");
+    
+    const selectedCounty = countySelect.value;
+
+    // 清空现有 City 选项
+    citySelect.innerHTML = '<option value="">-- 请选择 City --</option>';
+    customCityInput.style.display = "none";
+    customCityInput.required = false;
+
+    if (selectedCounty && countyCityMap[selectedCounty]) {
+      citySelect.style.display = "block";
+      citySelect.required = true;
+
+      // 动态填充城市下拉菜单
+      countyCityMap[selectedCounty].forEach(city => {
+        const option = document.createElement("option");
+        option.value = city.split(" ")[0]; // 提取纯英文名作为 value
+        option.textContent = city;
+        citySelect.appendChild(option);
+      });
+
+      // 添加“其他城市”自定义选项
+      const otherOpt = document.createElement("option");
+      otherOpt.value = "Other";
+      otherOpt.textContent = "其他城市 (Other City)";
+      citySelect.appendChild(otherOpt);
+
+    } else if (selectedCounty === "Other") {
+      // 若选择了 Other County，直接切换为手写输入框
+      citySelect.style.display = "none";
+      citySelect.required = false;
+      customCityInput.style.display = "block";
+      customCityInput.required = true;
+    } else {
+      citySelect.innerHTML = '<option value="">-- 请先选择 County --</option>';
+    }
+  }
+
+  // 当 City 选择“其他城市”时显示输入框
+  function handleCityChange() {
+    const citySelect = document.getElementById("citySelect");
+    const customCityInput = document.getElementById("customCityInput");
+
+    if (citySelect.value === "Other") {
+      customCityInput.style.display = "block";
+      customCityInput.required = true;
+    } else {
+      customCityInput.style.display = "none";
+      customCityInput.required = false;
+    }
+  }
+
+  // 表单提交处理
+  function handleSubmit(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const data = Object.fromEntries(formData.entries());
+
+    // 纠正 City 的最终赋值
+    if (data.citySelect === "Other" || data.county === "Other") {
+      data.city = data.customCity;
+    } else {
+      data.city = data.citySelect;
+    }
+
+    delete data.customCity;
+    delete data.citySelect;
+
+    console.log("提交的完整客户信息：", data);
+    alert("信息采集成功！City 字段已成功录入：" + data.city);
+  }
+</script>
+
 </body>
 </html>
