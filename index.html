@@ -143,14 +143,17 @@
                 <p class="text-sm text-gray-500 mt-1" data-i18n="subTitle">Medicare & Medicaid 会员年度保险更新云端服务平台</p>
             </div>
 
-            <!-- 档案搜索栏 (打印时隐藏) -->
+            <!-- 安全防护档案搜索栏 (打印时隐藏) -->
             <div class="search-card bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6 shadow-sm no-print">
-                <h3 class="font-bold text-blue-900 text-base mb-1" data-i18n="searchTitle">☁️ 档案调取与检索</h3>
-                <p class="text-xs text-blue-700 mb-3" data-i18n="searchDesc">输入会员姓名或电话号码，直接从云端服务器调取历史档案，避免重复输入。</p>
-                <div class="flex gap-2">
-                    <input type="text" id="searchInput" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" data-i18n-placeholder="searchPlaceholder" placeholder="输入姓名或电话号码...">
-                    <button onclick="searchCloudRecord()" class="px-5 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 shadow" data-i18n="btnSearch">调取档案</button>
-                    <button onclick="resetForm()" class="px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300" data-i18n="btnReset">清空/新建</button>
+                <h3 class="font-bold text-blue-900 text-base mb-1" data-i18n="searchTitle">🔒 安全检索与调取</h3>
+                <p class="text-xs text-blue-700 mb-3" data-i18n="searchDesc">为保护个人隐私，需同时匹配【姓名】与【电话号码】方可调取历史档案。</p>
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-2">
+                    <input type="text" id="searchNameInput" class="md:col-span-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" data-i18n-placeholder="searchNamePlaceholder" placeholder="会员姓名...">
+                    <input type="tel" id="searchPhoneInput" class="md:col-span-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" data-i18n-placeholder="searchPhonePlaceholder" placeholder="注册电话号码...">
+                    <div class="flex gap-1 md:col-span-1">
+                        <button onclick="searchCloudRecord()" class="flex-1 px-3 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 shadow text-sm" data-i18n="btnSearch">验证调取</button>
+                        <button onclick="resetForm()" class="px-3 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300 text-sm" data-i18n="btnReset">清空</button>
+                    </div>
                 </div>
             </div>
 

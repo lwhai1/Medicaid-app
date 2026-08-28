@@ -23,10 +23,11 @@ const i18nData = {
         adminPortal: "管理员后台",
         mainTitle: "美福阳光保险信息采集系统",
         subTitle: "Medicare & Medicaid 会员年度保险更新云端服务平台",
-        searchTitle: "☁️ 档案调取与检索",
-        searchDesc: "输入会员姓名或电话号码，直接从云端服务器调取历史档案，避免重复输入。",
-        searchPlaceholder: "输入姓名或电话号码...",
-        btnSearch: "调取档案",
+        searchTitle: "🔒 安全检索与调取",
+        searchDesc: "为保护个人隐私，需同时匹配【姓名】与【电话号码】方可调取历史档案。",
+        searchNamePlaceholder: "会员姓名...",
+        searchPhonePlaceholder: "注册电话号码...",
+        btnSearch: "验证调取",
         btnReset: "清空/新建",
         sec1Title: "一、 会员基本信息",
         lblFullName: "会员姓名 *",
@@ -55,10 +56,11 @@ const i18nData = {
         adminPortal: "Admin Portal",
         mainTitle: "Sunshine Insurance Information System",
         subTitle: "Medicare & Medicaid Member Annual Enrollment Cloud Platform",
-        searchTitle: "☁️ Search & Retrieve Cloud Record",
-        searchDesc: "Enter member name or phone to fetch existing records from cloud.",
-        searchPlaceholder: "Enter full name or phone number...",
-        btnSearch: "Search Record",
+        searchTitle: "🔒 Secure Search & Retrieval",
+        searchDesc: "For privacy protection, enter both Name and Phone to fetch record.",
+        searchNamePlaceholder: "Member Full Name...",
+        searchPhonePlaceholder: "Phone Number...",
+        btnSearch: "Verify & Fetch",
         btnReset: "Reset/New",
         sec1Title: "1. Basic Member Information",
         lblFullName: "Full Name *",
@@ -86,21 +88,19 @@ const i18nData = {
 };
 
 let currentLang = 'zh';
-let rawCloudData = []; // 用于导出的数据缓存
+let rawCloudData = []; 
 
 // 多语言切换功能
 window.toggleLanguage = function() {
     currentLang = currentLang === 'zh' ? 'en' : 'zh';
     document.getElementById('langToggleBtn').innerText = currentLang === 'zh' ? 'English' : '中文';
     
-    // 渲染文本
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         if (i18nData[currentLang][key]) {
             el.innerText = i18nData[currentLang][key];
         }
     });
-    // 渲染 Placeholder
     document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
         const key = el.getAttribute('data-i18n-placeholder');
         if (i18nData[currentLang][key]) {
@@ -150,27 +150,33 @@ window.saveToCloudAndPrint = async function(event) {
     }
 };
 
-// 单人云端检索
+// 🔒 前台防泄漏：必须同时匹配【姓名 + 电话】双重验证
 window.searchCloudRecord = async function() {
-    const queryStr = document.getElementById('searchInput').value.trim();
-    if (!queryStr) return alert(currentLang === 'zh' ? '请输入姓名或电话号码进行云端检索' : 'Please enter Name or Phone');
+    const nameStr = document.getElementById('searchNameInput').value.trim();
+    const phoneStr = document.getElementById('searchPhoneInput').value.trim();
+
+    if (!nameStr || !phoneStr) {
+        return alert(currentLang === 'zh' 
+            ? '🔒 为保护隐私，请输入【姓名】和【电话号码】进行双重验证调取！' 
+            : 'Please enter both Name and Phone number for security verification.');
+    }
 
     try {
         const membersRef = collection(db, "medicaid_members");
-        let q = query(membersRef, where("phone", "==", queryStr));
-        let querySnapshot = await getDocs(q);
-
-        if (querySnapshot.empty) {
-            q = query(membersRef, where("fullName", "==", queryStr));
-            querySnapshot = await getDocs(q);
-        }
+        // Firestore 组合查询：必须同时完全匹配 fullName 和 phone
+        const q = query(
+            membersRef, 
+            where("fullName", "==", nameStr),
+            where("phone", "==", phoneStr)
+        );
+        const querySnapshot = await getDocs(q);
 
         if (!querySnapshot.empty) {
             const docData = querySnapshot.docs[0];
             populateFormFields(docData.id, docData.data());
-            alert(currentLang === 'zh' ? `✅ 已成功从服务器调取 [${docData.data().fullName}] 的档案！` : `✅ Record fetched for [${docData.data().fullName}]!`);
+            alert(currentLang === 'zh' ? `✅ 身份验证成功，已调取【${docData.data().fullName}】的档案！` : `✅ Record verified & fetched!`);
         } else {
-            alert(currentLang === 'zh' ? '云端数据库中未找到匹配的会员记录。' : 'No records found.');
+            alert(currentLang === 'zh' ? '❌ 验证失败：姓名与电话号码不匹配，或云端库中无此记录。' : 'No matching record found. Verification failed.');
         }
     } catch (error) {
         alert('Fetch error: ' + error.message);
@@ -181,7 +187,8 @@ window.searchCloudRecord = async function() {
 window.resetForm = function() {
     document.getElementById('infoForm').reset();
     document.getElementById('docId').value = '';
-    document.getElementById('searchInput').value = '';
+    document.getElementById('searchNameInput').value = '';
+    document.getElementById('searchPhoneInput').value = '';
 };
 
 // 辅助函数：填充表单
@@ -213,7 +220,6 @@ window.toggleAdminView = function() {
     }
 };
 
-// 管理员登录（示例简易密码设为 admin888）
 window.loginAdmin = function() {
     const pwd = document.getElementById('adminPasswordInput').value;
     if (pwd === 'admin888') {
@@ -267,23 +273,17 @@ async function loadAllAdminData() {
     }
 }
 
-// 🟢【新增修复】管理员后台编辑/调取指定人员记录
+// 管理员后台无条件调取
 window.editRecordFromAdmin = async function(docId) {
     try {
         const docRef = doc(db, "medicaid_members", docId);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
-            // 1. 将该条记录数据填入前台表单
             populateFormFields(docSnap.id, docSnap.data());
-            
-            // 2. 自动切换视角回前台表单
             window.toggleAdminView();
-            
-            // 3. 滚动到页面顶部方便编辑
             window.scrollTo({ top: 0, behavior: 'smooth' });
-
-            alert(currentLang === 'zh' ? `✅ 已成功调取会员【${docSnap.data().fullName}】的数据，修改后保存即可更新！` : `✅ Loaded member [${docSnap.data().fullName}]. Modify and save to update.`);
+            alert(currentLang === 'zh' ? `✅ 已调取会员【${docSnap.data().fullName}】的数据，修改后保存即可更新！` : `✅ Loaded member [${docSnap.data().fullName}].`);
         } else {
             alert('❌ 该记录在服务器中不存在或已被删除。');
         }
@@ -293,7 +293,6 @@ window.editRecordFromAdmin = async function(docId) {
     }
 };
 
-// 导出 Excel 报表
 window.exportToExcel = function() {
     if (rawCloudData.length === 0) return alert('暂无数据可导出');
     const ws = XLSX.utils.json_to_sheet(rawCloudData);
@@ -302,7 +301,6 @@ window.exportToExcel = function() {
     XLSX.writeFile(wb, `美福阳光会员信息表_${new Date().toISOString().slice(0,10)}.xlsx`);
 };
 
-// 导出 CSV
 window.exportToCSV = function() {
     if (rawCloudData.length === 0) return alert('暂无数据可导出');
     const ws = XLSX.utils.json_to_sheet(rawCloudData);
