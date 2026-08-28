@@ -293,9 +293,9 @@
                         </div>
                     </div>
 
-                    <!-- 第二部分：医疗需求与卡号 -->
+                    <!-- 第二部分：原有保险信息 -->
                     <div class="section-title text-lg font-bold text-gray-800 pb-1 mb-3 border-b-2 border-red-500" data-i18n="sec2Title">
-                        二、 原有保险及医疗需求
+                        二、 原有保险信息
                     </div>
 
                     <div class="grid-print-2 grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
@@ -307,14 +307,11 @@
                             <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblMedicaidId">白卡号 (Medicaid ID)</label>
                             <input type="text" id="medicaidId" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="State ID...">
                         </div>
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblInsurance">原医疗保险公司及卡号</label>
-                            <input type="text" id="currentInsurance" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none" data-i18n-placeholder="phInsurance" placeholder="例如: UnitedHealthcare / ID...">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblAppt">预约保险代理沟通时间</label>
-                            <input type="datetime-local" id="appointmentTime" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                        </div>
+                    </div>
+
+                    <div class="grid-print-1 mb-3">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblInsurance">原医疗保险公司及卡号</label>
+                        <input type="text" id="currentInsurance" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none" data-i18n-placeholder="phInsurance" placeholder="例如: UnitedHealthcare / ID...">
                     </div>
 
                     <div class="grid-print-1 mb-3">
@@ -322,14 +319,28 @@
                         <textarea id="medications" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none" data-i18n-placeholder="phMeds" placeholder="请列出日常服用的药物名称及剂量..."></textarea>
                     </div>
 
-                    <div class="grid-print-1 mb-3">
+                    <div class="grid-print-1 mb-5">
                         <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblDoctors">常看的医生 / 医疗机构</label>
                         <textarea id="doctors" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none" data-i18n-placeholder="phDoctors" placeholder="请列出希望保留的家庭医生或专科医生姓名/诊所..."></textarea>
                     </div>
 
-                    <div class="grid-print-1 mb-5">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblNotes">其他特殊需求或备注</label>
-                        <textarea id="notes" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
+                    <!-- 第三部分：下一年度保险及医疗需求 -->
+                    <div class="section-title text-lg font-bold text-gray-800 pb-1 mb-3 border-b-2 border-red-500" data-i18n="sec3Title">
+                        三、 下一年度保险及医疗需求
+                    </div>
+
+                    <div class="grid-print-2 grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+                        <!-- 第一栏：需求或备注 -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="col1Title">需求或备注</label>
+                            <textarea id="notes" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
+                        </div>
+
+                        <!-- 第二栏：预约保险代理沟通时间 -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="col2Title">预约保险代理沟通时间</label>
+                            <input type="datetime-local" id="appointmentTime" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        </div>
                     </div>
 
                     <!-- 提交保存按钮 (打印时隐藏) -->

@@ -15,7 +15,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// 多语言字典定义 (已增加 lblCity)
+// 多语言字典定义
 const i18nData = {
     zh: {
         adminPortal: "管理员后台",
@@ -37,17 +37,20 @@ const i18nData = {
         lblState: "州 (State) *",
         lblZip: "邮政编码 (ZIP Code) *",
         lblCounty: "所在县/郡 (County) *",
-        sec2Title: "二、 原有保险及医疗需求",
+        sec2Title: "二、 原有保险信息",
         lblMbi: "红蓝卡号 (Medicare MBI)",
         lblMedicaidId: "白卡号 (Medicaid ID)",
         lblInsurance: "原医疗保险公司及卡号",
         phInsurance: "例如: UnitedHealthcare / ID...",
-        lblAppt: "预约保险代理沟通时间",
         lblMeds: "常用药品清单",
         phMeds: "请列出日常服用的药物名称及剂量...",
         lblDoctors: "常看的医生 / 医疗机构",
         phDoctors: "请列出希望保留的家庭医生或专科医生姓名/诊所...",
-        lblNotes: "其他特殊需求或备注",
+        sec3Title: "三、 下一年度保险及医疗需求",
+        col1Title: "需求或备注",
+        col2Title: "预约保险代理沟通时间",
+        lblNotes: "需求或备注",
+        lblAppt: "预约保险代理沟通时间",
         btnSubmit: "☁️ 保存至服务器并生成纸质报告",
         adminLoginTitle: "管理员身份验证",
         lblAdminPwd: "管理员密码",
@@ -76,17 +79,20 @@ const i18nData = {
         lblState: "State *",
         lblZip: "ZIP Code *",
         lblCounty: "County *",
-        sec2Title: "2. Existing Insurance & Medical Needs",
+        sec2Title: "2. Existing Insurance Information",
         lblMbi: "Medicare Number (MBI)",
         lblMedicaidId: "Medicaid ID",
         lblInsurance: "Current Insurance Provider & ID",
         phInsurance: "e.g., UnitedHealthcare / Member ID...",
-        lblAppt: "Appointment Time with Agent",
         lblMeds: "Current Medications",
         phMeds: "List daily medications and dosages...",
         lblDoctors: "Preferred Doctors / Clinics",
         phDoctors: "List primary care physicians or specialists...",
-        lblNotes: "Special Needs / Notes",
+        sec3Title: "3. Next Year Insurance & Medical Needs",
+        col1Title: "Needs / Remarks",
+        col2Title: "Agent Appointment Time",
+        lblNotes: "Needs / Remarks",
+        lblAppt: "Appointment Time with Agent",
         btnSubmit: "☁️ Save to Cloud & Print Report",
         adminLoginTitle: "Admin Authentication",
         lblAdminPwd: "Admin Password",
@@ -131,17 +137,17 @@ window.saveToCloudAndPrint = async function(event) {
         dlNumber: document.getElementById('dlNumber').value.trim(),
         phone: document.getElementById('phone').value.trim(),
         address: document.getElementById('address').value.trim(),
-        city: document.getElementById('city').value.trim(), // 新增 city 存储
+        city: document.getElementById('city').value.trim(),
         state: document.getElementById('state').value,
         zipCode: document.getElementById('zipCode').value.trim(),
         county: document.getElementById('county').value,
         mbiNumber: document.getElementById('mbiNumber').value.trim(),
         medicaidId: document.getElementById('medicaidId').value.trim(),
         currentInsurance: document.getElementById('currentInsurance').value.trim(),
-        appointmentTime: document.getElementById('appointmentTime').value,
         medications: document.getElementById('medications').value.trim(),
         doctors: document.getElementById('doctors').value.trim(),
         notes: document.getElementById('notes').value.trim(),
+        appointmentTime: document.getElementById('appointmentTime').value,
         updatedAt: new Date().toLocaleString()
     };
 
@@ -209,17 +215,17 @@ function populateFormFields(docId, data) {
     document.getElementById('dlNumber').value = data.dlNumber || '';
     document.getElementById('phone').value = data.phone || '';
     document.getElementById('address').value = data.address || '';
-    document.getElementById('city').value = data.city || ''; // 新增 city 字段反显
+    document.getElementById('city').value = data.city || '';
     document.getElementById('state').value = data.state || 'TX';
     document.getElementById('zipCode').value = data.zipCode || '';
     document.getElementById('county').value = data.county || '';
     document.getElementById('mbiNumber').value = data.mbiNumber || '';
     document.getElementById('medicaidId').value = data.medicaidId || '';
     document.getElementById('currentInsurance').value = data.currentInsurance || '';
-    document.getElementById('appointmentTime').value = data.appointmentTime || '';
     document.getElementById('medications').value = data.medications || '';
     document.getElementById('doctors').value = data.doctors || '';
     document.getElementById('notes').value = data.notes || '';
+    document.getElementById('appointmentTime').value = data.appointmentTime || '';
 }
 
 // ----------------- 管理员后台逻辑 -----------------
