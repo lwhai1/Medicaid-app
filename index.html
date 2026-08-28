@@ -90,13 +90,12 @@
                 margin-bottom: 1px !important;
             }
 
-            /* 打印时下拉菜单与输入框表现一致 */
+            /* 打印时输入框统一样式 */
             input[type="text"],
             input[type="tel"],
             input[type="date"],
             input[type="datetime-local"],
-            select,
-            textarea {
+            select {
                 width: 100% !important;
                 border: none !important;
                 border-bottom: 1px solid #666 !important;
@@ -106,19 +105,26 @@
                 font-size: 9.5pt !important;
                 box-shadow: none !important;
                 height: auto !important;
-                min-height: auto !important;
-                max-height: none !important;
-                overflow: visible !important;
-                white-space: pre-wrap !important;
-                word-break: break-word !important;
                 -webkit-appearance: none;
                 -moz-appearance: none;
                 appearance: none;
             }
 
+            /* 【关键修复】多行文本框在打印时完全自动展开，不截断、无滚动条 */
             textarea {
-                border: 1px dashed #aaa !important;
-                padding: 2px !important;
+                width: 100% !important;
+                border: 1px dashed #666 !important;
+                padding: 3px !important;
+                font-size: 9.5pt !important;
+                line-height: 1.3 !important;
+                height: auto !important;
+                min-height: auto !important;
+                max-height: none !important;
+                overflow: visible !important;
+                white-space: pre-wrap !important;
+                word-break: break-word !important;
+                resize: none !important;
+                display: block !important;
             }
         }
     </style>
@@ -148,7 +154,7 @@
                 <p class="text-sm text-gray-500 mt-1" data-i18n="subTitle">Medicare & Medicaid 会员年度保险更新云端服务平台</p>
             </div>
 
-            <!-- 安全防护档案搜索栏 (禁用自动填充) -->
+            <!-- 安全防护档案搜索栏 -->
             <div class="search-card bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6 shadow-sm no-print">
                 <h3 class="font-bold text-blue-900 text-base mb-1" data-i18n="searchTitle">🔒 安全检索与调取</h3>
                 <p class="text-xs text-blue-700 mb-3" data-i18n="searchDesc">为保护个人隐私，需同时匹配【姓名】与【电话号码】方可调取历史档案。</p>
@@ -191,7 +197,6 @@
                         </div>
                     </div>
 
-                    <!-- 地址连贯区块：家庭住址 -> City -> 州 -> 邮编 -> County -->
                     <div class="grid-print-1 mb-3">
                         <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="lblAddress">家庭详细住址 *</label>
                         <input type="text" id="address" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Street address...">
@@ -330,13 +335,11 @@
                     </div>
 
                     <div class="grid-print-2 grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-                        <!-- 第一栏：需求或备注 -->
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="col1Title">需求或备注</label>
                             <textarea id="notes" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
                         </div>
 
-                        <!-- 第二栏：预约保险代理沟通时间 -->
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="col2Title">预约保险代理沟通时间</label>
                             <input type="datetime-local" id="appointmentTime" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none">

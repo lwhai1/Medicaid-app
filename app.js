@@ -124,6 +124,14 @@ window.toggleLanguage = function() {
     });
 };
 
+// 自动调整 textarea 高度，防止打印截断
+function prepareTextareasForPrint() {
+    document.querySelectorAll('textarea').forEach(textarea => {
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+    });
+}
+
 window.saveToCloudAndPrint = async function(event) {
     event.preventDefault();
     const btn = document.getElementById('submitBtn');
@@ -160,6 +168,9 @@ window.saveToCloudAndPrint = async function(event) {
         }
 
         alert(currentLang === 'zh' ? '✅ 数据已成功同步保存至服务器！正在准备打印报告...' : '✅ Saved to cloud! Preparing print report...');
+        
+        // 打印前撑开多行文本框
+        prepareTextareasForPrint();
         window.print();
     } catch (error) {
         console.error("Save error:", error);
@@ -206,6 +217,7 @@ window.resetForm = function() {
     document.getElementById('docId').value = '';
     document.getElementById('searchNameInput').value = '';
     document.getElementById('searchPhoneInput').value = '';
+    document.querySelectorAll('textarea').forEach(ta => ta.style.height = 'auto');
 };
 
 function populateFormFields(docId, data) {
@@ -226,6 +238,9 @@ function populateFormFields(docId, data) {
     document.getElementById('doctors').value = data.doctors || '';
     document.getElementById('notes').value = data.notes || '';
     document.getElementById('appointmentTime').value = data.appointmentTime || '';
+
+    // 回显数据后自动撑开多行文本框高度
+    setTimeout(prepareTextareasForPrint, 100);
 }
 
 // ----------------- 管理员后台逻辑 -----------------
