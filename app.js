@@ -1,9 +1,9 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { 
-    getFirestore, collection, addDoc, updateDoc, doc, getDoc, getDocs, query, where, orderBy 
+    getFirestore, collection, addDoc, updateDoc, doc, getDoc, getDocs, query, where 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// ⚠️ 请在此处替换为您在 Firebase 申请到的真实 Key 配置
+// ⚠️ 请确认使用您的真实 Firebase Config
 const firebaseConfig = {
     apiKey: "AIzaSyAFReJ8q3PnNDY41A4dRvHMj-LcWbPx4P0",
     authDomain: "sunshine-insurance-54216.firebaseapp.com",
@@ -13,11 +13,10 @@ const firebaseConfig = {
     appId: "1:482845933926:web:187e2c11b1ffae34afc8a7",
 };
 
-// 初始化 Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// 多语言字典定义 (i18n)
+// 多语言字典定义 (新增 County / DOB / MBI 词条)
 const i18nData = {
     zh: {
         adminPortal: "管理员后台",
@@ -31,11 +30,16 @@ const i18nData = {
         btnReset: "清空/新建",
         sec1Title: "一、 会员基本信息",
         lblFullName: "会员姓名 *",
+        lblDob: "出生日期 (DOB) *",
         lblDL: "驾照号 / State ID *",
         lblPhone: "电话号码 *",
+        lblCounty: "所在县/郡 (County) *",
+        phCounty: "例如: Fort Bend / Harris",
         lblZip: "邮政编码 (ZIP Code) *",
         lblAddress: "家庭详细住址 *",
         sec2Title: "二、 原有保险及医疗需求",
+        lblMbi: "红蓝卡号 (Medicare MBI)",
+        lblMedicaidId: "白卡号 (Medicaid ID)",
         lblInsurance: "原医疗保险公司及卡号",
         phInsurance: "例如: UnitedHealthcare / ID...",
         lblAppt: "预约保险代理沟通时间",
@@ -64,11 +68,16 @@ const i18nData = {
         btnReset: "Reset/New",
         sec1Title: "1. Basic Member Information",
         lblFullName: "Full Name *",
+        lblDob: "Date of Birth (DOB) *",
         lblDL: "Driver's License / State ID *",
         lblPhone: "Phone Number *",
+        lblCounty: "County *",
+        phCounty: "e.g., Fort Bend / Harris",
         lblZip: "ZIP Code *",
         lblAddress: "Home Address *",
         sec2Title: "2. Existing Insurance & Medical Needs",
+        lblMbi: "Medicare Number (MBI)",
+        lblMedicaidId: "Medicaid ID",
         lblInsurance: "Current Insurance Provider & ID",
         phInsurance: "e.g., UnitedHealthcare / Member ID...",
         lblAppt: "Appointment Time with Agent",
@@ -90,7 +99,6 @@ const i18nData = {
 let currentLang = 'zh';
 let rawCloudData = []; 
 
-// 多语言切换功能
 window.toggleLanguage = function() {
     currentLang = currentLang === 'zh' ? 'en' : 'zh';
     document.getElementById('langToggleBtn').innerText = currentLang === 'zh' ? 'English' : '中文';
@@ -109,7 +117,6 @@ window.toggleLanguage = function() {
     });
 };
 
-// 提交数据并打印
 window.saveToCloudAndPrint = async function(event) {
     event.preventDefault();
     const btn = document.getElementById('submitBtn');
@@ -119,10 +126,14 @@ window.saveToCloudAndPrint = async function(event) {
     const docId = document.getElementById('docId').value;
     const record = {
         fullName: document.getElementById('fullName').value.trim(),
+        dob: document.getElementById('dob').value,
         dlNumber: document.getElementById('dlNumber').value.trim(),
         phone: document.getElementById('phone').value.trim(),
+        county: document.getElementById('county').value.trim(),
         zipCode: document.getElementById('zipCode').value.trim(),
         address: document.getElementById('address').value.trim(),
+        mbiNumber: document.getElementById('mbiNumber').value.trim(),
+        medicaidId: document.getElementById('medicaidId').value.trim(),
         currentInsurance: document.getElementById('currentInsurance').value.trim(),
         appointmentTime: document.getElementById('appointmentTime').value,
         medications: document.getElementById('medications').value.trim(),
@@ -150,7 +161,6 @@ window.saveToCloudAndPrint = async function(event) {
     }
 };
 
-// 🔒 前台防泄漏：必须同时匹配【姓名 + 电话】双重验证
 window.searchCloudRecord = async function() {
     const nameStr = document.getElementById('searchNameInput').value.trim();
     const phoneStr = document.getElementById('searchPhoneInput').value.trim();
@@ -163,7 +173,6 @@ window.searchCloudRecord = async function() {
 
     try {
         const membersRef = collection(db, "medicaid_members");
-        // Firestore 组合查询：必须同时完全匹配 fullName 和 phone
         const q = query(
             membersRef, 
             where("fullName", "==", nameStr),
@@ -183,7 +192,6 @@ window.searchCloudRecord = async function() {
     }
 };
 
-// 重置表单
 window.resetForm = function() {
     document.getElementById('infoForm').reset();
     document.getElementById('docId').value = '';
@@ -191,14 +199,17 @@ window.resetForm = function() {
     document.getElementById('searchPhoneInput').value = '';
 };
 
-// 辅助函数：填充表单
 function populateFormFields(docId, data) {
     document.getElementById('docId').value = docId || '';
     document.getElementById('fullName').value = data.fullName || '';
+    document.getElementById('dob').value = data.dob || '';
     document.getElementById('dlNumber').value = data.dlNumber || '';
     document.getElementById('phone').value = data.phone || '';
+    document.getElementById('county').value = data.county || '';
     document.getElementById('zipCode').value = data.zipCode || '';
     document.getElementById('address').value = data.address || '';
+    document.getElementById('mbiNumber').value = data.mbiNumber || '';
+    document.getElementById('medicaidId').value = data.medicaidId || '';
     document.getElementById('currentInsurance').value = data.currentInsurance || '';
     document.getElementById('appointmentTime').value = data.appointmentTime || '';
     document.getElementById('medications').value = data.medications || '';
@@ -238,7 +249,6 @@ window.logoutAdmin = function() {
     toggleAdminView();
 };
 
-// 加载全量后台数据表格
 async function loadAllAdminData() {
     const tbody = document.getElementById('adminDataTableBody');
     tbody.innerHTML = '<tr><td colspan="8" class="p-4 text-center text-gray-400">正在获取最新服务器数据...</td></tr>';
@@ -256,11 +266,11 @@ async function loadAllAdminData() {
             tr.className = "border-b hover:bg-gray-50";
             tr.innerHTML = `
                 <td class="p-3 font-semibold text-gray-800">${data.fullName || ''}</td>
+                <td class="p-3">${data.dob || ''}</td>
                 <td class="p-3">${data.phone || ''}</td>
-                <td class="p-3">${data.dlNumber || ''}</td>
-                <td class="p-3">${data.zipCode || ''}</td>
+                <td class="p-3">${data.county || ''}</td>
+                <td class="p-3">${data.mbiNumber || ''}</td>
                 <td class="p-3">${data.currentInsurance || ''}</td>
-                <td class="p-3">${data.appointmentTime || ''}</td>
                 <td class="p-3 text-gray-500">${data.updatedAt || ''}</td>
                 <td class="p-3 text-center">
                     <button onclick="editRecordFromAdmin('${docSnap.id}')" class="text-blue-600 hover:underline font-semibold">编辑/调取</button>
@@ -273,7 +283,6 @@ async function loadAllAdminData() {
     }
 }
 
-// 管理员后台无条件调取
 window.editRecordFromAdmin = async function(docId) {
     try {
         const docRef = doc(db, "medicaid_members", docId);
