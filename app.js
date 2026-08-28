@@ -1,51 +1,327 @@
-// 在 app.js 的表单提交事件回调中：
-const form = document.getElementById('insuranceForm');
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { 
+    getFirestore, collection, addDoc, updateDoc, doc, getDoc, getDocs, query, where 
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
+const firebaseConfig = {
+    apiKey: "AIzaSyAFReJ8q3PnNDY41A4dRvHMj-LcWbPx4P0",
+    authDomain: "sunshine-insurance-54216.firebaseapp.com",
+    projectId: "sunshine-insurance-54216",
+    storageBucket: "sunshine-insurance-54216.firebasestorage.app",
+    messagingSenderId: "482845933926",
+    appId: "1:482845933926:web:187e2c11b1ffae34afc8a7",
+};
 
-  // 1. 获取 City 的值（处理级联下拉框与自定义输入的逻辑）
-  const countySelect = document.getElementById('countySelect').value;
-  const citySelect = document.getElementById('citySelect').value;
-  const customCityInput = document.getElementById('customCityInput').value;
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-  // 确定最终提交的 city 名称
-  let finalCity = citySelect;
-  if (citySelect === 'Other' || countySelect === 'Other') {
-    finalCity = customCityInput;
-  }
+// 多语言字典定义 (已增加 lblCity)
+const i18nData = {
+    zh: {
+        adminPortal: "管理员后台",
+        mainTitle: "美福阳光保险信息采集系统",
+        subTitle: "Medicare & Medicaid 会员年度保险更新云端服务平台",
+        searchTitle: "🔒 安全检索与调取",
+        searchDesc: "为保护个人隐私，需同时匹配【姓名】与【电话号码】方可调取历史档案。",
+        searchNamePlaceholder: "会员姓名...",
+        searchPhonePlaceholder: "注册电话号码...",
+        btnSearch: "验证调取",
+        btnReset: "清空/新建",
+        sec1Title: "一、 会员基本信息",
+        lblFullName: "会员姓名 *",
+        lblDob: "出生日期 (DOB) *",
+        lblDL: "证件号 / ID Number *",
+        lblPhone: "电话号码 *",
+        lblAddress: "家庭详细住址 *",
+        lblCity: "城市 (City) *",
+        lblState: "州 (State) *",
+        lblZip: "邮政编码 (ZIP Code) *",
+        lblCounty: "所在县/郡 (County) *",
+        sec2Title: "二、 原有保险及医疗需求",
+        lblMbi: "红蓝卡号 (Medicare MBI)",
+        lblMedicaidId: "白卡号 (Medicaid ID)",
+        lblInsurance: "原医疗保险公司及卡号",
+        phInsurance: "例如: UnitedHealthcare / ID...",
+        lblAppt: "预约保险代理沟通时间",
+        lblMeds: "常用药品清单",
+        phMeds: "请列出日常服用的药物名称及剂量...",
+        lblDoctors: "常看的医生 / 医疗机构",
+        phDoctors: "请列出希望保留的家庭医生或专科医生姓名/诊所...",
+        lblNotes: "其他特殊需求或备注",
+        btnSubmit: "☁️ 保存至服务器并生成纸质报告",
+        adminLoginTitle: "管理员身份验证",
+        lblAdminPwd: "管理员密码",
+        btnLogin: "登录后台",
+        adminDashTitle: "会员档案管理后台",
+        adminDashDesc: "实时调取全量提交数据，支持一键导出 Excel / CSV 报表",
+        btnLogout: "退出登录"
+    },
+    en: {
+        adminPortal: "Admin Portal",
+        mainTitle: "Sunshine Insurance Information System",
+        subTitle: "Medicare & Medicaid Member Annual Enrollment Cloud Platform",
+        searchTitle: "🔒 Secure Search & Retrieval",
+        searchDesc: "For privacy protection, enter both Name and Phone to fetch record.",
+        searchNamePlaceholder: "Member Full Name...",
+        searchPhonePlaceholder: "Phone Number...",
+        btnSearch: "Verify & Fetch",
+        btnReset: "Reset/New",
+        sec1Title: "1. Basic Member Information",
+        lblFullName: "Full Name *",
+        lblDob: "Date of Birth (DOB) *",
+        lblDL: "ID Number *",
+        lblPhone: "Phone Number *",
+        lblAddress: "Home Address *",
+        lblCity: "City *",
+        lblState: "State *",
+        lblZip: "ZIP Code *",
+        lblCounty: "County *",
+        sec2Title: "2. Existing Insurance & Medical Needs",
+        lblMbi: "Medicare Number (MBI)",
+        lblMedicaidId: "Medicaid ID",
+        lblInsurance: "Current Insurance Provider & ID",
+        phInsurance: "e.g., UnitedHealthcare / Member ID...",
+        lblAppt: "Appointment Time with Agent",
+        lblMeds: "Current Medications",
+        phMeds: "List daily medications and dosages...",
+        lblDoctors: "Preferred Doctors / Clinics",
+        phDoctors: "List primary care physicians or specialists...",
+        lblNotes: "Special Needs / Notes",
+        btnSubmit: "☁️ Save to Cloud & Print Report",
+        adminLoginTitle: "Admin Authentication",
+        lblAdminPwd: "Admin Password",
+        btnLogin: "Login",
+        adminDashTitle: "Member Records Management",
+        adminDashDesc: "Manage full record submissions with Excel / CSV export capabilities.",
+        btnLogout: "Logout"
+    }
+};
 
-  // 2. 组装要保存到 Firebase/数据库的客户数据对象
-  const clientData = {
-    lastName: form.lastName.value,
-    firstName: form.firstName.value,
-    chineseName: form.chineseName.value,
-    dob: form.dob.value,
-    phone: form.phone.value,
-    email: form.email.value,
+let currentLang = 'zh';
+let rawCloudData = []; 
+
+window.toggleLanguage = function() {
+    currentLang = currentLang === 'zh' ? 'en' : 'zh';
+    document.getElementById('langToggleBtn').innerText = currentLang === 'zh' ? 'English' : '中文';
     
-    // 地址部分新增 City
-    streetAddress: form.streetAddress.value,
-    county: countySelect,      // 所属县
-    city: finalCity,           // 新增：所属城市
-    state: form.state.value || "TX",
-    zipCode: form.zipCode.value,
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (i18nData[currentLang][key]) {
+            el.innerText = i18nData[currentLang][key];
+        }
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (i18nData[currentLang][key]) {
+            el.placeholder = i18nData[currentLang][key];
+        }
+    });
+};
 
-    // 保险与 Waiver 信息
-    medicaidNumber: form.medicaidNumber.value,
-    mcoProvider: form.mcoProvider.value,
-    waiverProgram: form.waiverProgram.value,
+window.saveToCloudAndPrint = async function(event) {
+    event.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.innerText = currentLang === 'zh' ? '正在上传服务器...' : 'Uploading...';
 
-    createdAt: new Date().toISOString()
-  };
+    const docId = document.getElementById('docId').value;
+    const record = {
+        fullName: document.getElementById('fullName').value.trim(),
+        dob: document.getElementById('dob').value,
+        dlNumber: document.getElementById('dlNumber').value.trim(),
+        phone: document.getElementById('phone').value.trim(),
+        address: document.getElementById('address').value.trim(),
+        city: document.getElementById('city').value.trim(), // 新增 city 存储
+        state: document.getElementById('state').value,
+        zipCode: document.getElementById('zipCode').value.trim(),
+        county: document.getElementById('county').value,
+        mbiNumber: document.getElementById('mbiNumber').value.trim(),
+        medicaidId: document.getElementById('medicaidId').value.trim(),
+        currentInsurance: document.getElementById('currentInsurance').value.trim(),
+        appointmentTime: document.getElementById('appointmentTime').value,
+        medications: document.getElementById('medications').value.trim(),
+        doctors: document.getElementById('doctors').value.trim(),
+        notes: document.getElementById('notes').value.trim(),
+        updatedAt: new Date().toLocaleString()
+    };
 
-  try {
-    // 3. 写入 Firebase Firestore 数据库示例
-    // await db.collection("clients").add(clientData);
-    console.log("即将存入数据库的数据：", clientData);
-    alert("客户信息及 City 数据已成功提交！");
-    form.reset();
-  } catch (error) {
-    console.error("提交失败：", error);
-  }
-});
+    try {
+        if (docId) {
+            await updateDoc(doc(db, "medicaid_members", docId), record);
+        } else {
+            const docRef = await addDoc(collection(db, "medicaid_members"), record);
+            document.getElementById('docId').value = docRef.id;
+        }
+
+        alert(currentLang === 'zh' ? '✅ 数据已成功同步保存至服务器！正在准备打印报告...' : '✅ Saved to cloud! Preparing print report...');
+        window.print();
+    } catch (error) {
+        console.error("Save error:", error);
+        alert('❌ Error: ' + error.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerText = i18nData[currentLang].btnSubmit;
+    }
+};
+
+window.searchCloudRecord = async function() {
+    const nameStr = document.getElementById('searchNameInput').value.trim();
+    const phoneStr = document.getElementById('searchPhoneInput').value.trim();
+
+    if (!nameStr || !phoneStr) {
+        return alert(currentLang === 'zh' 
+            ? '🔒 为保护隐私，请输入【姓名】和【电话号码】进行双重验证调取！' 
+            : 'Please enter both Name and Phone number for security verification.');
+    }
+
+    try {
+        const membersRef = collection(db, "medicaid_members");
+        const q = query(
+            membersRef, 
+            where("fullName", "==", nameStr),
+            where("phone", "==", phoneStr)
+        );
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+            const docData = querySnapshot.docs[0];
+            populateFormFields(docData.id, docData.data());
+            alert(currentLang === 'zh' ? `✅ 身份验证成功，已调取【${docData.data().fullName}】的档案！` : `✅ Record verified & fetched!`);
+        } else {
+            alert(currentLang === 'zh' ? '❌ 验证失败：姓名与电话号码不匹配，或云端库中无此记录。' : 'No matching record found. Verification failed.');
+        }
+    } catch (error) {
+        alert('Fetch error: ' + error.message);
+    }
+};
+
+window.resetForm = function() {
+    document.getElementById('infoForm').reset();
+    document.getElementById('docId').value = '';
+    document.getElementById('searchNameInput').value = '';
+    document.getElementById('searchPhoneInput').value = '';
+};
+
+function populateFormFields(docId, data) {
+    document.getElementById('docId').value = docId || '';
+    document.getElementById('fullName').value = data.fullName || '';
+    document.getElementById('dob').value = data.dob || '';
+    document.getElementById('dlNumber').value = data.dlNumber || '';
+    document.getElementById('phone').value = data.phone || '';
+    document.getElementById('address').value = data.address || '';
+    document.getElementById('city').value = data.city || ''; // 新增 city 字段反显
+    document.getElementById('state').value = data.state || 'TX';
+    document.getElementById('zipCode').value = data.zipCode || '';
+    document.getElementById('county').value = data.county || '';
+    document.getElementById('mbiNumber').value = data.mbiNumber || '';
+    document.getElementById('medicaidId').value = data.medicaidId || '';
+    document.getElementById('currentInsurance').value = data.currentInsurance || '';
+    document.getElementById('appointmentTime').value = data.appointmentTime || '';
+    document.getElementById('medications').value = data.medications || '';
+    document.getElementById('doctors').value = data.doctors || '';
+    document.getElementById('notes').value = data.notes || '';
+}
+
+// ----------------- 管理员后台逻辑 -----------------
+
+window.toggleAdminView = function() {
+    const memberSec = document.getElementById('memberSection');
+    const adminSec = document.getElementById('adminSection');
+    if (adminSec.classList.contains('hidden')) {
+        memberSec.classList.add('hidden');
+        adminSec.classList.remove('hidden');
+    } else {
+        adminSec.classList.add('hidden');
+        memberSec.classList.remove('hidden');
+    }
+};
+
+window.loginAdmin = function() {
+    const pwd = document.getElementById('adminPasswordInput').value;
+    if (pwd === 'admin888') {
+        document.getElementById('adminLoginForm').classList.add('hidden');
+        document.getElementById('adminDashboard').classList.remove('hidden');
+        loadAllAdminData();
+    } else {
+        alert(currentLang === 'zh' ? '密码错误！' : 'Invalid Password!');
+    }
+};
+
+window.logoutAdmin = function() {
+    document.getElementById('adminPasswordInput').value = '';
+    document.getElementById('adminDashboard').classList.add('hidden');
+    document.getElementById('adminLoginForm').classList.remove('hidden');
+    toggleAdminView();
+};
+
+async function loadAllAdminData() {
+    const tbody = document.getElementById('adminDataTableBody');
+    tbody.innerHTML = '<tr><td colspan="8" class="p-4 text-center text-gray-400">正在获取最新服务器数据...</td></tr>';
+    
+    try {
+        const querySnapshot = await getDocs(collection(db, "medicaid_members"));
+        rawCloudData = [];
+        tbody.innerHTML = '';
+
+        querySnapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            rawCloudData.push(data);
+            
+            const tr = document.createElement('tr');
+            tr.className = "border-b hover:bg-gray-50";
+            tr.innerHTML = `
+                <td class="p-3 font-semibold text-gray-800">${data.fullName || ''}</td>
+                <td class="p-3">${data.dob || ''}</td>
+                <td class="p-3">${data.phone || ''}</td>
+                <td class="p-3">${data.city || ''}, ${data.state || 'TX'} / ${data.county || ''}</td>
+                <td class="p-3">${data.mbiNumber || ''}</td>
+                <td class="p-3">${data.currentInsurance || ''}</td>
+                <td class="p-3 text-gray-500">${data.updatedAt || ''}</td>
+                <td class="p-3 text-center">
+                    <button onclick="editRecordFromAdmin('${docSnap.id}')" class="text-blue-600 hover:underline font-semibold">编辑/调取</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } catch (error) {
+        tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-red-500">数据加载失败: ${error.message}</td></tr>`;
+    }
+}
+
+window.editRecordFromAdmin = async function(docId) {
+    try {
+        const docRef = doc(db, "medicaid_members", docId);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            populateFormFields(docSnap.id, docSnap.data());
+            window.toggleAdminView();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            alert(currentLang === 'zh' ? `✅ 已调取会员【${docSnap.data().fullName}】的数据，修改后保存即可更新！` : `✅ Loaded member [${docSnap.data().fullName}].`);
+        } else {
+            alert('❌ 该记录在服务器中不存在或已被删除。');
+        }
+    } catch (error) {
+        console.error("Fetch record error:", error);
+        alert('❌ 调取失败: ' + error.message);
+    }
+};
+
+window.exportToExcel = function() {
+    if (rawCloudData.length === 0) return alert('暂无数据可导出');
+    const ws = XLSX.utils.json_to_sheet(rawCloudData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "会员档案");
+    XLSX.writeFile(wb, `美福阳光会员信息表_${new Date().toISOString().slice(0,10)}.xlsx`);
+};
+
+window.exportToCSV = function() {
+    if (rawCloudData.length === 0) return alert('暂无数据可导出');
+    const ws = XLSX.utils.json_to_sheet(rawCloudData);
+    const csv = XLSX.utils.sheet_to_csv(ws);
+    const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `美福阳光会员信息表_${new Date().toISOString().slice(0,10)}.csv`;
+    link.click();
+};
